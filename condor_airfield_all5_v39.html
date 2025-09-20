@@ -2696,7 +2696,8 @@ function openHost(){
   const src = { kind:'dialogue', title: `Talk to ${hub.host.who} (host)`, who: hub.host.who, nodes: hub.host.nodes };
   renderDialogue(src);
 }
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', renderAirfield);
+function() {
   if (typeof render === 'function') {
     render();
   } else if (typeof renderAirfield === 'function') {
