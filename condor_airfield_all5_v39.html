@@ -2696,13 +2696,6 @@ function openHost(){
   const src = { kind:'dialogue', title: `Talk to ${hub.host.who} (host)`, who: hub.host.who, nodes: hub.host.nodes };
   renderDialogue(src);
 }
-
-</script>
-
-...
-<!-- Your existing scripts here -->
-
-<script>
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof render === 'function') {
     render();
