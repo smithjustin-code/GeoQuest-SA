@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>City of the Condor — Airfield + Argentina & Chile (v10)</title>
+<style>
+:root{
+  --bg:#0e1726; --panel:#111d31; --ink:#e8f0ff; --muted:#a2b4ce;
+  --accent:#7bdffb; --good:#2dd36f; --warn:#ffd166; --bad:#ef476f; --card:#0f223a;
+  --water:#091424; --ground:#1a2d4f; --light:#2f4f87; --pin:#ffea75;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1200px 800px at 10% 10%, #17263f, var(--bg));color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+a{color:var(--accent)}
+#app{max-width:1100px;margin:0 auto;padding:16px 16px 96px}
+header{
+  display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:12px;
+  position:sticky;top:0;background:linear-gradient(180deg, rgba(14,23,38,.98), rgba(14,23,38,.8));
+  padding:10px 8px;border-bottom:1px solid #1f2b45;backdrop-filter: blur(6px);z-index:5;
+}
+.title{font-weight:800;letter-spacing:.3px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.badge{background:var(--panel);border:1px solid #1f2b45;padding:6px 10px;border-radius:10px;color:var(--muted);font-size:13px;white-space:nowrap}
+.badge b{color:var(--ink)}
+main{display:grid;grid-template-columns: 320px 1fr; gap:16px}
+@media (max-width: 940px){ main{grid-template-columns: 1fr} }
+.pane{background:var(--panel);border:1px solid #1f2b45;border-radius:14px;padding:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);}
+h2,h3{margin:.4em 0 .3em} h2{font-size:20px} h3{font-size:16px;color:var(--muted)}
+button,select{background:#0f223a;border:1px solid #243655;color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;}
+button:hover{filter:brightness(1.1)} button[disabled]{opacity:.55;cursor:not-allowed}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.log{max-height:220px;overflow:auto;background:rgba(13, 27, 48, .45);border:1px solid #1c2a45;border-radius:10px;padding:8px;font-size:13px}
+.log p{margin:.45em 0}
+.journal{font-size:13px;line-height:1.4;background:#0a1b31;border:1px solid #223456;border-radius:10px;padding:10px;max-height:240px;overflow:auto}
+.small{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid #1d2a44;border-radius:12px;padding:12px;margin:8px 0;}
+.tag{font-size:12px;color:var(--muted);border:1px dashed #395481;padding:2px 6px;border-radius:999px}
+.artifact{background:#0a1b31;border-left:3px solid #35507d;border-right:1px solid #223a60;padding:10px;border-radius:8px;margin:8px 0;color:#d3e0f3}
+.q{background:#0a1b31;border:1px dashed #294268;padding:10px;border-radius:10px;margin-top:6px}
+.kbd{border:1px solid #3b557f;background:#0d1c33;padding:2px 6px;border-radius:6px}
+/* Views */
+.view{min-height:420px}
+.scene{background:#081224;border:1px solid #243a66;border-radius:12px;padding:10px;position:relative}
+canvas.pixel{display:block;width:100%;height:auto;background:#091424;border-radius:8px;border:1px solid #253c69;cursor:crosshair;
+ image-rendering: pixelated; image-rendering: crisp-edges;}
+.scene-caption{position:absolute;left:12px;bottom:12px;background:rgba(8,18,36,.8);padding:6px 8px;border:1px solid #223a60;border-radius:6px;font-size:12px}
+.tooltip{position:absolute;display:none;background:#0b1a2f;padding:6px 8px;border:1px solid #2a4168;border-radius:6px;font-size:12px;pointer-events:none;transform:translate(-50%,-125%)}
+.loc-list .loc{display:flex;gap:10px;align-items:center;background:#0f223a;border:1px solid #1d2a44;border-radius:10px;padding:8px;margin:6px 0}
+.loc .icon{width:28px;height:28px;border-radius:7px;background:#102643;display:grid;place-items:center}
+.loc .meta{font-size:12px;color:var(--muted)}
+.loc-title{display:flex;gap:10px;align-items:center}
+.backlink{font-size:12px;color:var(--accent);cursor:pointer}
+.footer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg, rgba(14,23,38,0), rgba(14,23,38,0.96));padding:14px 16px;border-top:1px solid #1f2b45;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* Modal Source Viewer */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,8,16,.65);z-index:40}
+.modal .box{width:min(860px, 94vw);max-height:86vh;overflow:auto;background:#0a1b31;border:1px solid #2a4168;border-radius:14px;box-shadow:0 12px 50px rgba(0,0,0,.45)}
+.modal header{position:sticky;top:0;background:#0a1b31;border-bottom:1px solid #243a66;padding:10px 12px;display:flex;gap:8px;align-items:center;z-index:2}
+.modal .title{font-weight:700}
+.modal .content{padding:14px}
+.src-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.src-card{flex:1 1 180px;min-width:180px;background:#0f223a;border:1px solid #1d2a44;border-radius:10px;padding:10px;cursor:pointer}
+.src-card:hover{filter:brightness(1.05);border-color:#2e4a7a}
+.badge-sm{font-size:11px;background:#0f223a;border:1px solid #1d2a44;padding:3px 6px;border-radius:8px;color:#a2b4ce}
+.dialogue{background:#091a31;border:1px solid #223a60;border-radius:10px;padding:10px}
+.bubble{background:#0e2039;border:1px solid #294773;border-radius:10px;padding:10px;margin:6px 0}
+.choice-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.choice{background:#0f223a;border:1px solid #1d2a44;border-radius:8px;padding:6px 10px;cursor:pointer}
+.choice:hover{filter:brightness(1.07)}
+.note{font-size:12px;color:#a2b4ce}
+.news{background:#0d1e36;border:1px solid #24406d;border-radius:10px;padding:12px}
+.news .mast{font-weight:800;letter-spacing:.5px}
+.news .sub{font-size:12px;color:#a2b4ce}
+.news .col{column-count:2;column-gap:18px;margin-top:8px}
+.news mark, .artifact mark {background:#2a4a7a;color:#eaf2ff;padding:1px 3px;border-radius:4px;cursor:pointer}
+.news .stamp{font-size:11px;color:#a2b4ce;border:1px dashed #395481;display:inline-block;padding:2px 6px;border-radius:999px;margin-top:8px}
+.ev-list{font-size:13px;color:#cfe2ff}
+.ev-list li{margin:4px 0}
+
+/* --- Pixel Art Additions --- */
+.pixel { image-rendering: pixelated; image-rendering: crisp-edges; }
+.pixel.x3 { width: 288px; height: 192px; }
+.loc-hero.card { display:flex; align-items:center; gap:12px; }
+.loc-hero .pixel-wrap { flex:0 0 auto; }
+.loc-hero .small { opacity:.9 }
+.dialogue .dlg-row { display:flex; align-items:flex-start; gap:10px; }
+.dialogue .portrait { border:1px solid #243655; background:#0b1a2d; }
+
+
+/* === Facelift theme === */
+:root{
+  --bg:#0b1220;
+  --bg2:#0e1830;
+  --card:rgba(255,255,255,0.06);
+  --card-border:rgba(255,255,255,0.12);
+  --text:#e6eefb;
+  --muted:#b8c6e3;
+  --accent:#32d0ff;
+  --accent-2:#7cf7cf;
+  --danger:#ff6b6b;
+  --ok:#8be47a;
+}
+html, body{ background: radial-gradient(1200px 800px at 15% -10%, #152040, transparent), linear-gradient(180deg, var(--bg), var(--bg2)); color:var(--text); }
+#app{ max-width:1100px; margin: 20px auto 80px auto; }
+h1,h2,h3{ letter-spacing:.5px; }
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.card:hover{ transform: translateY(-1px); box-shadow: 0 14px 40px rgba(0,0,0,0.45); border-color: rgba(255,255,255,0.18); }
+.card .tag{ background: rgba(50,208,255,0.12); border: 1px solid rgba(50,208,255,0.35); color: var(--accent); }
+
+.btn-row button, .btn-primary, button{
+  background: linear-gradient(180deg, rgba(124,247,207,0.14), rgba(124,247,207,0.06));
+  border:1px solid rgba(124,247,207,0.45);
+  color: var(--text);
+  padding:.55rem .8rem;
+  border-radius:10px;
+  cursor:pointer;
+  transition: transform .1s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.btn-row button:hover, button:hover{ transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); border-color: rgba(124,247,207,0.7); }
+.btn-row button:active, button:active{ transform: translateY(0); }
+
+/* HUD polish */
+#hud{
+  position: sticky; top:0; z-index: 50;
+  background: linear-gradient(180deg, rgba(10,18,32,0.85), rgba(10,18,32,0.45));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:.5rem .75rem;
+}
+.badge{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.25rem .5rem; border-radius:999px;
+  border:1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  font-weight:600; letter-spacing:.3px;
+}
+.badge .ico{ font-size: 1rem; opacity:.9 }
+#hud .spacer{ flex:1 }
+#hud .fx-toggle{ margin-left:.5rem; }
+
+/* Scene frame + scanlines + vignette */
+.scene-wrap{ position: relative; display:inline-block; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,0.16); box-shadow: 0 12px 35px rgba(0,0,0,0.45); }
+#sceneCanvas{ display:block; background:#061020; image-rendering: pixelated; }
+.scene-overlay.scanlines{ pointer-events:none; position:absolute; inset:0;
+  background-image: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,0.15) 2px 3px);
+  mix-blend-mode: overlay; opacity:.6;
+}
+.scene-overlay.vignette{ pointer-events:none; position:absolute; inset:0;
+  background: radial-gradient(120% 100% at 50% 10%, transparent 55%, rgba(0,0,0,0.4) 85%);
+}
+
+/* Tooltip makeover */
+#sceneTip{
+  position: fixed; z-index: 100;
+  padding:.35rem .55rem;
+  font-size:.95rem; color:var(--text);
+  background: rgba(22,30,46,0.85);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:10px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.4);
+  transform: translate(8px, -8px);
+}
+#sceneTip::after{
+  content:''; position:absolute; width:8px; height:8px;
+  background: inherit; border-left:1px solid rgba(255,255,255,0.18); border-top:1px solid rgba(255,255,255,0.18);
+  transform: rotate(45deg); right:-5px; top:50%; margin-top:-4px;
+}
+
+/* Airfield tooltip mirrors sceneTip */
+#airTip{
+  position: fixed; z-index: 100;
+  padding:.35rem .55rem;
+  font-size:.95rem; color:var(--text);
+  background: rgba(22,30,46,0.85);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:10px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.4);
+  transform: translate(8px, -8px);
+}
+#airTip::after{
+  content:''; position:absolute; width:8px; height:8px;
+  background: inherit; border-left:1px solid rgba(255,255,255,0.18); border-top:1px solid rgba(255,255,255,0.18);
+  transform: rotate(45deg); right:-5px; top:50%; margin-top:-4px;
+}
+</style>
+<script>const view=document.getElementById('view'); const viewTitle=document.getElementById('viewTitle');</script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="title">🪶 City of the Condor — <span id="viewTitle">Airfield</span></div>
+    <div class="badges">
+      <div class="badge">XP ⭐ <b id="hudXP">0</b> <div class="btn-row" style="margin-left:12px;"><button onclick="state.view.mode=\'airfield\'; render();">Airfield</button></div></div>
+      <div class="badge">Feathers 🪶 <b id="hudFeathers">0/5</b></div>
+      <div class="badge">Rival ☠ <b id="hudRival">0</b></div>
+      <div class="badge">Country TU ⏱ <b id="hudTU">—</b></div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="pane">
+      <h2>Mission Log</h2>
+      <div class="log" id="log"></div>
+      <h3>Journal</h3>
+      <div class="journal" id="journal"></div>
+      <div class="btn-row">
+        <button onclick="saveGame()">💾 Save</button>
+        <button onclick="loadGame()">📂 Load</button>
+        <button onclick="resetGame()">♻️ Reset</button>
+      </div>
+      <div class="card small">
+        <div><span class="tag">Evidence Collected</span></div>
+        <ul id="evidenceUl" class="ev-list"></ul>
+      </div>
+    </aside>
+
+    <section class="pane view" id="view"></section>
+  </main>
+</div>
+
+<!-- Modal Source Viewer -->
+<div id="modal" class="modal" onclick="if(event.target.id==='modal'){closeModal()}">
+  <div class="box">
+    <header><div class="title" id="modalTitle">Source</div><div style="margin-left:auto"></div><button onclick="closeModal()">✖</button></header>
+    <div class="content" id="modalContent"></div>
+  </div>
+</div>
+
+<div class="footer small">
+  <div>v10: NEW Chile hub with dialogue trees, clippings/plaques, evidence, and a pixel-art Atacama observatory scene. Airfield + Argentina kept.</div>
+</div>
+
+<script>
+// ======= GLOBAL STATE =======
+const state = { retroFX:true,
+  xp:0, rival:0, rivalMax:12,
+  feathers:0, featherCountries:{},
+  country:null, tu:0,
+  journal:[], log:[],
+  evidence:{ argentina:[], chile:[] },        // per-country location completion
+  evidenceDetails:[],                         // [{id,text,loc,country}]
+  answers:{},
+  shardSites:{},                              // { countryId:true } when host reveals shard site
+  difficulty:'normal',
+  view:{ mode:'airfield', country:null, location:null }, // airfield | hub | location | synthesis | final | lose
+};
+function logLine(msg){ state.log.unshift(msg); renderHud(); }
+function addJournal(entry){ state.journal.unshift(entry); renderHud(); }
+function renderHud(){
+  hudXP.textContent = state.xp;
+  hudFeathers.textContent = state.feathers + "/5";
+  hudRival.textContent = state.rival + "/" + state.rivalMax;
+  hudTU.textContent = state.view.mode==='hub' ? state.tu : '—';
+  log.innerHTML = state.log.slice(0,12).map(p=>`<p>${p}</p>`).join('') || '<p class="small">—</p>';
+  journal.innerHTML = state.journal.slice(0,30).map(p=>`<p>• ${p}</p>`).join('') || '<p class="small">—</p>';
+  // evidence list (search across hubs for titles)
+  evidenceUl.innerHTML = state.evidenceDetails.slice(0,30).map(e=>`<li>📌 <b>${titleFor(e.country,e.loc)}</b> — ${e.text}</li>`).join('');
+}
+function titleFor(countryId, locId){
+  const hub = HUBS[countryId];
+  const loc = hub?.locations.find(l=>l.id===locId);
+  return loc ? `${hub.name}: ${loc.name}` : `${countryId}: ${locId}`;
+}
+
+// ======= AIRFIELD (v7 big pins) =======
+const AIRFIELD = {
+  canvas:{w:600,h:340},
+  base:{w:320,h:180},
+  markers:[
+    { id:'argentina', label:'Argentina — Pampas & Rain Shadow', x:120, y:250, r:28 },
+    { id:'chile',     label:'Chile — Cold Current & Atacama',   x:240, y:120, r:28 },
+    { id:'colombia',  label:'Colombia — Magdalena Corridor',    x:340, y:210, r:28 },
+    { id:'brazil',    label:'Brazil — Pantanal & Falls',        x:460, y:160, r:28 },
+    { id:'peru',      label:'Peru — Andes & Headwaters',        x:520, y:260, r:28 },
+  ],
+  objs:null, animId:null, hoverId:null
+};
+
+function initAirfieldScene(){
+  AIRFIELD.objs = {
+    clouds: Array.from({length:7}, ()=> ({
+      x: Math.randomom()*AIRFIELD.base.w,
+      y: 6 + Math.randomom()*40,
+      w: 18+Math.randomom()*28,
+      h: 8+Math.randomom()*10,
+      speed: .08 + Math.randomom()*.2
+    })),
+    birds: Array.from({length:3}, (_,i)=> ({
+      x: 280 - i*40*Math.randomom(),
+      y: 24 + i*6,
+      vx: -0.25 - Math.randomom()*0.2
+    })),
+    beaconPhase: 0,
+    truckX: 120,
+    shootTicker: 0
+  };
+}
+
+function renderAirfield(){
+  stopAllCountryAnims();
+  stopAirfieldAnim();
+  if(!AIRFIELD.objs) initAirfieldScene();
+  viewTitle.textContent = 'Airfield — Choose a Country';
+  view.innerHTML = `
+    <div class="card">
+      <span class="tag">Welcome, Pilot</span>
+      <p>You’ve reached the City of the Condor airstrip. Pick a country pin to begin your case. At each stop, talk to people, read plaques or clippings, and save key facts with the paperclip. Use those clues to answer the question at that location. When you finish a country, complete its Synthesis to earn a Feather Shard.</p>
+      <p class="small">Tip: Hover pins for hints; dialogue choices don’t cost time—submitting answers does.</p>
+    </div>
+    <div class="scene">
+      <div class="scene-wrap"><canvas id="airfieldCanvas" class="pixel" width="${AIRFIELD.canvas.w}" height="${AIRFIELD.canvas.h}"></canvas><div class="scene-overlay scanlines" id="scanlines"></div><div class="scene-overlay vignette"></div></div>
+      <div class="scene-caption small">Pins are larger for clarity. Hover for hints; click to depart.</div>
+      <div id="airTip" class="tooltip"></div>
+    </div>
+    <div class="card small">
+      <span class="tag">Feather Tracker</span>
+      <p>Collect all <b>5 Feather Shards</b> (one per country). ${state.feathers>=5 ? '🟢 All shards aligned — the sanctuary awaits!' : '🔎 Earn shards by completing each country’s synthesis.'}</p>
+      <div class="btn-row">
+        <button onclick="renderFinal()" ${state.feathers>=5 ? '' : 'disabled'}>🛫 Fly to the Condor Sanctuary</button>
+      </div>
+    </div>`;
+  startAirfieldAnim();
+  setupAirfieldHotspots();
+}
+function startAirfieldAnim(){
+  const c = document.getElementById('airfieldCanvas'); if(!c) return;
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    drawAirfield(ts, dt);
+    AIRFIELD.animId = requestAnimationFrame(loop);
+  };
+  AIRFIELD.animId = requestAnimationFrame(loop);
+}
+function stopAirfieldAnim(){ if(AIRFIELD?.animId){ cancelAnimationFrame(AIRFIELD.animId); AIRFIELD.animId=null; } }
+function drawAirfield(t=0, dt=16){
+  const c = document.getElementById('airfieldCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas');
+  oc.width = AIRFIELD.base.w; oc.height = AIRFIELD.base.h;
+  const px = oc.getContext('2d');
+  [px, ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+  const W = oc.width, H = oc.height;
+  // sky
+  px.fillStyle = '#0a1730'; px.fillRect(0,0,W,H);
+  for(let y=0;y<70;y++){ const a = 0.05 + 0.08*Math.sin((y/70)*Math.PI); px.fillStyle = `rgba(21,42,86,${a})`; px.fillRect(0,y,W,1); }
+  const sunX=56, sunY=44;
+  for(let r=24;r>0;r--){ const a = 0.02 + (24-r)/200; px.fillStyle = `rgba(255,214,102,${a})`; px.fillRect(sunX-r, sunY, r*2, 1); px.fillRect(sunX-r, sunY-1, r*2, 1); }
+  // clouds
+  AIRFIELD.objs.clouds.forEach(cl=>{
+    cl.x += cl.speed * (dt/16);
+    if(cl.x - cl.w > W) cl.x = -cl.w;
+    drawCloudPuffy(px, Math.floor(cl.x), Math.floor(cl.y), Math.floor(cl.w), Math.floor(cl.h));
+  });
+  // mountains
+  drawMount(px, H*0.66, '#0b1d39', 8, 18);
+  drawMount(px, H*0.70, '#0c2142', 10, 24);
+  drawMount(px, H*0.74, '#0d254b', 12, 28);
+  // runway
+  const yRun = Math.floor(H*0.78);
+  px.fillStyle = '#1d2f54'; px.fillRect(0,yRun,W,H-yRun);
+  textDigits(px, Math.floor(W*0.06), yRun+4, '09');
+  px.fillStyle = '#9fb0c9'; for(let x=10;x<W;x+=14){ px.fillRect(x, yRun+Math.floor((H-yRun)/2)-1, 6,1); }
+  for(let x=6,i=0;x<W-6;x+=12,i++){ const on = Math.sin(t*0.004 + i*0.6) > 0.4; px.fillStyle = on? '#ffd166' : '#7a6a3c'; px.fillRect(x, yRun+2, 1,1); px.fillRect(x, H-3, 1,1); }
+  // buildings & props
+  const hx=24, hy=yRun-28, hw=50, hh=24;
+  px.fillStyle = '#223a63'; px.fillRect(hx,hy,hw,hh);
+  px.fillStyle = '#2a4a7a'; px.fillRect(hx-2,hy-6,hw+4,6);
+  px.fillStyle = '#182b4f'; px.fillRect(hx+6,hy+10,10,14);
+  px.fillStyle = '#1e2f54'; px.fillRect(hx+22,hy+8,10,8);
+  textPixel(px, hx+6, hy-8, 'CONDOR');
+  const tx = hx+hw+10, ty=hy-6;
+  px.fillStyle='#2b4f87'; px.fillRect(tx,ty,10,30);
+  px.fillStyle='#9fb0c9'; px.fillRect(tx-3,ty-6,16,6);
+  drawBeacon(px, tx+5, ty-4, (Math.floor(t/120)%8));
+  const sockX = tx+20, sockY = hy-2;
+  px.fillStyle='#23406d'; px.fillRect(sockX, sockY-10,1,10);
+  drawWindsock(px, sockX+1, sockY-8, 12, 3, Math.sin(t*0.005)*3);
+  // truck & plane
+  AIRFIELD.objs.truckX += 0.08*(dt/16);
+  if(AIRFIELD.objs.truckX > W-20) AIRFIELD.objs.truckX = 60;
+  const tx2 = Math.floor(AIRFIELD.objs.truckX), ty2 = yRun-6;
+  px.fillStyle='#334a7a'; px.fillRect(tx2,ty2,16,6);
+  px.fillStyle='#182b4f'; px.fillRect(tx2+2,ty2+4,4,2); px.fillRect(tx2+10,ty2+4,4,2);
+  const blink = Math.floor(t/400)%2===0 ? '#ffd166' : '#7a6a3c'; px.fillStyle=blink; px.fillRect(tx2+15,ty2+2,1,1);
+  const pX = Math.floor(W*0.62), pY = yRun-2;
+  px.fillStyle='#0e1a2f'; px.fillRect(pX-18, pY+10, 36,2);
+  px.fillStyle='#9fb0c9'; px.fillRect(pX-16, pY-4, 32,8);
+  px.fillStyle='#cbd8ef'; px.fillRect(pX-4, pY-8, 8,4);
+  px.fillStyle='#9fb0c9'; px.fillRect(pX+12, pY-2, 6,4);
+  px.fillStyle='#8fa4c5'; px.fillRect(pX-26, pY-1, 52,2);
+  drawProp(px, pX-20, pY, Math.floor((t/80)%4));
+  // to main canvas
+  const cctx = c.getContext('2d'); cctx.clearRect(0,0,c.width,c.height); cctx.drawImage(oc, 0, 0, c.width, c.height);
+  if(typeof applyScenePostFX==='function') applyScenePostFX();
+  // pins
+  AIRFIELD.markers.forEach(m => {
+    const done = state.featherCountries[m.id];
+    const hover = AIRFIELD.hoverId===m.id;
+    drawPin(cctx, m.x, m.y, t, {done, hover, kind:'air'});
+    drawLabel(cctx, m.x+ (m.id==='peru'?26:14), m.y-20, nameFor(m.id));
+  });
+}
+function nameFor(id){ return {argentina:'Argentina', chile:'Chile', colombia:'Colombia', brazil:'Brazil', peru:'Peru'}[id] || id; }
+function drawCloudPuffy(px, x,y,w,h){
+  const lobes = [0, -Math.floor(w*0.35), Math.floor(w*0.35), -Math.floor(w*0.15), Math.floor(w*0.15)];
+  lobes.forEach((ox,i)=>{
+    const lw = Math.floor(w*(i===0?0.7:0.45)); const lh = Math.floor(h*(i===0?1.1:0.8));
+    const baseX = x + ox - Math.floor(lw/2);
+    for(let i2=0;i2<lw;i2++){
+      const curve = Math.sin((i2/lw)*Math.PI)*lh;
+      const shade = i===0? '#20365f' : '#1a2b4d';
+      const hilite = i===0? '#2e4b7f' : '#2a4475';
+      px.fillStyle = shade; px.fillRect(baseX+i2, y, 1, Math.max(1, Math.floor(curve)));
+      px.fillStyle = hilite; px.fillRect(baseX+i2, y-1, 1, 1);
+    }
+  });
+  const half = Math.floor(w/2);
+  for(let i2=-half;i2<half;i2++){ const yy = y+h-1; px.fillStyle='#0d1b34'; px.fillRect(x+i2, yy, 1, 1); }
+}
+function drawMount(px, baseY, color, amp, step){
+  const W = px.canvas.width;
+  px.fillStyle = color;
+  for(let x=0;x<W;x++){
+    const y = Math.floor(baseY - Math.sin(x/step)*amp - Math.sin(x/17)*(amp*.4));
+    px.fillRect(x, y, 1, px.canvas.height - y);
+  }
+}
+function drawWindsock(px, x,y, len, rad, sway){
+  for(let i=0;i<len;i++){
+    const t = i/len; const yy = y + Math.sin(t*Math.PI)*sway*0.2;
+    px.fillStyle = i%2? '#ff6b6b' : '#ffd1d1';
+    px.fillRect(x+i, Math.floor(yy), 1, rad);
+  }
+}
+
+function drawWindBlades(px, cx, cy, frame){
+  // Simple pixel windmill blades animation (frames 0-3)
+  const f = (frame||0) % 4;
+  px.fillStyle = '#9fb0c9';
+  if(f===0){ // '+'
+    px.fillRect(cx-3, cy, 7, 1);
+    px.fillRect(cx, cy-3, 1, 7);
+  }else if(f===1){ // '×' (\)
+    for(let i=-3;i<=3;i++){ px.fillRect(cx+i, cy+i, 1, 1); }
+  }else if(f===2){ // '+' (same as 0 for subtle tick)
+    px.fillRect(cx-3, cy, 7, 1);
+    px.fillRect(cx, cy-3, 1, 7);
+  }else{ // '×' (/)
+    for(let i=-3;i<=3;i++){ px.fillRect(cx+i, cy-i, 1, 1); }
+  }
+}
+
+// --- SpriteKit: tiny pixel sprites for locations & portraits ---
+function drawLocationSprite(country, locId, el){
+  const cvs = (typeof el==='string') ? document.getElementById(el) : el;
+  if(!cvs) return;
+  const px = cvs.getContext('2d');
+  const W = cvs.width, H = cvs.height;
+  px.clearRect(0,0,W,H);
+  // sky & ground
+  px.fillStyle = '#0d2238'; px.fillRect(0,0,W,H);
+  px.fillStyle = '#11345a'; px.fillRect(0,0,W,Math.floor(H*0.55)); // sky
+  px.fillStyle = '#204a2e'; px.fillRect(0,Math.floor(H*0.55),W,H);  // ground
+
+  function mountain(x,y,w,h){
+    px.fillStyle = '#2a3a52'; px.beginPath();
+    px.moveTo(x,y); px.lineTo(x+w/2,y-h); px.lineTo(x+w,y); px.closePath(); px.fill();
+    // snow
+    px.fillStyle = '#b9d1f4'; px.beginPath();
+    px.moveTo(x+w/2,y-h); px.lineTo(x+w*0.65,y-h*0.65); px.lineTo(x+w*0.35,y-h*0.65); px.closePath(); px.fill();
+  }
+  function house(x,y){
+    px.fillStyle = '#7a3e2b'; px.fillRect(x,y,28,14);
+    px.fillStyle = '#c7a07a'; px.fillRect(x+3,y+5,8,6); // door
+    px.fillStyle = '#1f120e'; px.fillRect(x+17,y+4,6,5); // window
+    // roof
+    px.fillStyle = '#4a2418'; px.beginPath();
+    px.moveTo(x-2,y); px.lineTo(x+14,y-10); px.lineTo(x+30,y); px.closePath(); px.fill();
+    // fence
+    px.fillStyle = '#7a3e2b'; for(let i=0;i<32;i+=6){ px.fillRect(x-18+i,y+12,2,8); }
+    px.fillRect(x-18,y+16,32,2);
+  }
+  function crane(x,y){
+    // simple harbor crane
+    px.fillStyle = '#2f3340'; px.fillRect(x,y-24,3,24);
+    for(let i=0;i<16;i+=4){ px.fillRect(x-6+i,y-24,2,24); }
+    px.fillRect(x-12,y-24,24,2);
+    px.fillRect(x+10,y-34,2,10);
+    px.fillRect(x+10,y-34,14,2);
+    px.fillRect(x+20,y-24,2,12);
+  }
+  function glacier(x,y,w,h){
+    px.fillStyle = '#4da3ff'; px.fillRect(x,y,w,h);
+    px.fillStyle = '#bfe3ff'; for(let i=0;i<w;i+=4){ px.fillRect(x+i,y+(i%8<4?2:0),2,h-2); }
+  }
+  function windmill(x,y,frame){
+    // tower
+    px.fillStyle = '#8a9ab7'; px.fillRect(x-1,y-20,2,20);
+    drawWindBlades(px,x,y-22,frame||0);
+  }
+
+  // choose art by location
+  const t = (locId||'').toLowerCase();
+  const frame = (Date.now()>>8)&3;
+  if(country==='argentina'){
+    if(t==='ranch'){ mountain(6, Math.floor(H*0.55), 46, 26); house(46, Math.floor(H*0.55)+4); windmill(28, Math.floor(H*0.55), frame); }
+    else if(t==='pass'){ mountain(10, Math.floor(H*0.60), 70, 42); mountain(50, Math.floor(H*0.60), 60, 46); }
+    else if(t==='survey'){ glacier(8, Math.floor(H*0.55)-4, 80, 24); windmill(78, Math.floor(H*0.55)-2, frame); }
+    else if(t==='harbor'){ crane(70, Math.floor(H*0.55)+14); px.fillStyle='#244'; px.fillRect(0,Math.floor(H*0.55)+18,W,H); }
+  }
+  if(country==='chile'){
+    if(t==='andes'){ mountain(8, Math.floor(H*0.60), 70, 44); mountain(50, Math.floor(H*0.60), 60, 50); }
+    else if(t==='atacama'){ px.fillStyle='#7a5a2b'; px.fillRect(0,Math.floor(H*0.55),W,H); for(let x=0;x<W;x+=6){ px.fillRect(x,Math.floor(H*0.55)+((x>>2)&3),2,2);} }
+    else if(t==='observatory'){ mountain(22, Math.floor(H*0.60), 56, 36); px.fillStyle='#ddd'; px.fillRect(64, Math.floor(H*0.60)-18,10,8); }
+    else if(t==='coast'){ px.fillStyle='#1a3b6f'; px.fillRect(0,Math.floor(H*0.55)+10,W,H); }
+  }
+}
+
+function drawPortrait(country, who, el){
+  const cvs = (typeof el==='string') ? document.getElementById(el) : el;
+  if(!cvs) return;
+  const px = cvs.getContext('2d'), W=cvs.width, H=cvs.height;
+  px.clearRect(0,0,W,H);
+  px.fillStyle = '#0b1a2d'; px.fillRect(0,0,W,H);
+  // default oval face
+  function faceBase(){
+    px.fillStyle = '#caa07a'; px.fillRect(16,10,16,20);
+    px.fillRect(14,14,4,8); px.fillRect(32,14,4,8); // cheeks
+    px.fillStyle = '#000'; px.fillRect(20,18,2,2); px.fillRect(30,18,2,2); // eyes
+    px.fillRect(22,24,8,2); // mouth
+  }
+  const name = (who||'').toLowerCase();
+  if(country==='argentina' && name.includes('mateo')){
+    // Gaucho: wide hat + neckerchief
+    px.fillStyle = '#3b2a1a'; px.fillRect(8,6,32,4); px.fillRect(18,4,12,4); // hat brim + crown
+    faceBase();
+    px.fillStyle = '#b0182a'; px.fillRect(20,30,8,6); // scarf knot
+    px.fillRect(16,34,16,4); // scarf drape
+  }else{
+    // Generic NPC
+    px.fillStyle = '#2a3a52'; px.fillRect(10,6,28,6); // hair/hat
+    faceBase();
+  }
+}
+function drawProp(px, x,y, frame){
+  px.fillStyle='#cbd8ef';
+  if(frame===0){ px.fillRect(x, y-1, 8,1); px.fillRect(x, y, 8,1); }
+  else if(frame===1){ px.fillRect(x+3, y-3, 1,7); }
+  else if(frame===2){ px.fillRect(x, y-1, 8,1); px.fillRect(x, y, 8,1); }
+  else { px.fillRect(x+3, y-3, 1,7); }
+}
+function textPixel(px, x,y, str){
+  const map = {'C':['###','#..','##.','#..','###'],'O':['###','#.#','#.#','#.#','###'],'N':['#.#','##.','#.#','#.#','#.#'],'D':['##.','#.#','#.#','#.#','##.'],'R':['##.','#.#','##.','#.#','#.#']};
+  let cx=x;
+  str.split('').forEach(ch=>{
+    const g = map[ch] || ['###','#.#','#.#','#.#','###'];
+    for(let r=0;r<g.length;r++){
+      for(let c=0;c<g[r].length;c++){ if(g[r][c]==='#') px.fillRect(cx+c, y+r, 1,1); }
+    }
+    cx += g[0].length + 1;
+  });
+}
+function textDigits(px, x,y, str){
+  const map = {'0':['###','#.#','#.#','#.#','###'],'1':['.#.','##.','.#.','.#.','###'],'2':['###','..#','###','#..','###'],'7':['###','..#','.#.','.#.','.#.'],'9':['###','#.#','###','..#','###']};
+  let cx=x;
+  str.split('').forEach(ch=>{
+    const g = map[ch] || ['###','#.#','#.#','#.#','###'];
+    px.fillStyle='#9fb0c9';
+    for(let r=0;r<g.length;r++){
+      for(let c=0;c<g[r].length;c++){ if(g[r][c]==='#') px.fillRect(cx+c, y+r, 1,1); }
+    }
+    cx += g[0].length + 1;
+  });
+}
+function drawBeacon(px, x,y, phase){
+  px.fillStyle='#ffd166';
+  if(phase%2===0) px.fillRect(x, y, 1,1);
+  if(phase===1) px.fillRect(x+1,y,1,1);
+  if(phase===3) px.fillRect(x-1,y,1,1);
+  if(phase===5) px.fillRect(x,y-1,1,1);
+  if(phase===7) px.fillRect(x,y+1,1,1);
+}
+
+// pins
+const PIN = { air:{ head:8, stem:14, pulseBase:14, pulseAmp:6 }, hub:{ head:6, stem:12, pulseBase:12, pulseAmp:5 } };
+function drawPin(ctx, x,y, t, {done=false, hover=false, kind='air'}={}){
+  const P = PIN[kind] || PIN.air;
+  const base = done ? 'rgba(46,211,111,1)' : '#ffea75';
+  const stroke = done ? 'rgba(23,120,70,1)' : '#c8a94a';
+  const pulseR = P.pulseBase + P.pulseAmp*Math.max(0, Math.sin(t*0.006 + (x+y)));
+  ctx.save();
+  const g = ctx.createRadialGradient(x,y,0,x,y,pulseR);
+  g.addColorStop(0, hover? 'rgba(255,234,117,0.65)' : 'rgba(255,234,117,0.4)');
+  g.addColorStop(1, 'rgba(255,234,117,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,pulseR,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.strokeStyle=stroke; ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.arc(x,y,P.head + (hover?1:0),0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y+P.head); ctx.lineTo(x, y+P.head+P.stem); ctx.stroke();
+  ctx.restore();
+}
+function drawLabel(ctx, x,y, text){
+  ctx.save();
+  ctx.font='12px monospace'; const padX=6;
+  const metrics = ctx.measureText(text);
+  const w = metrics.width + padX*2, h = 16, r=6;
+  ctx.fillStyle='rgba(8,18,36,0.78)'; ctx.strokeStyle='rgba(34,58,96,0.95)';
+  roundRect(ctx, x-4, y-h, w, h, r); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.fillText(text, x+padX-4, y-4);
+  ctx.restore();
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+// tooltips & clicks (airfield)
+function setupAirfieldHotspots(){
+  const c = document.getElementById('airfieldCanvas'); const tip = document.getElementById('airTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearest(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of AIRFIELD.markers){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearest(ev);
+    AIRFIELD.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(AIRFIELD.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearest(ev);
+    if(hotspot && dist <= hotspot.r){ enterCountry(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ AIRFIELD.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+// ======= COUNTRY HUBS =======
+const ARG = { base:{w:260,h:150}, animId:null, t:0, cattle:[], hoverId:null, chickens:[], farWind:0 };
+const CHI = { base:{w:260,h:150}, animId:null, t:0, hoverId:null, stars:[], fog:0 };
+const BRA = { base:{w:260,h:150}, animId:null, t:0, hoverId:null, birds:[], fish:[], spray:0 };
+const COL = { base:{w:260,h:150}, animId:null, t:0, hoverId:null, clouds:[], boat:{x:20,dir:1}, rain:0 };
+const PER = { base:{w:260,h:150}, animId:null, t:0, hoverId:null, condor:{x:30,y:20,dir:1}, clouds:[], terr:[], shimmer:0 };
+
+const HUBS = {
+  argentina:{
+    id:'argentina',
+    name:'Argentina',
+    tu:5,
+    scene:{w:520,h:300, caption:'Gaucho Ranch — Pampas at dusk (pixel-art, animated)'},
+    intro:'Patagonian winds whistle beyond the pass; hooves drum the Pampas. A gaucho waves you into a low ranch house.',
+    host:{
+      who:'Gaucho Mateo',
+      nodes:{
+        start:{ text:'Welcome to the Pampas—wind, grass, and long horizons', choices:[
+          {label:'Where should we start?', next:'hint1'},
+          {label:'Any second stop?', next:'hint2'},
+          {label:'Thanks!', next:'end'}
+        ]},
+        hint1:{ text:'Start at the Pampas Ranch—check soils and shelterbelts first', choices:[{label:'Back', next:'start'}]},
+        hint2:{ text:'Then climb to the Mountain Pass to see the rain shadow; the Survey Shed will test your bearings later', choices:[{label:'Back', next:'start'}]},
+        end:{ text:'Keep your hat tight—the pampero can kick up without warning', choices:[{label:'Leave', next:'_close'}]}
+      }
+    },
+    hotspots:[
+      { id:'ranch',  label:'Ranch',         x: Math.floor(520*0.26 + 120/2), y: Math.floor(300*0.62 + 20), r:26 },
+      { id:'pass',   label:'Pass',          x: Math.floor(520*0.75),         y: Math.floor(300*0.45),      r:26 },
+      { id:'survey', label:'Survey',        x: Math.floor(520*0.55),         y: Math.floor(300*0.75),      r:26 },
+      { id:'harbor', label:'Harbor Office', x: Math.floor(520*0.15),         y: Math.floor(300*0.70),      r:26 },
+    ],
+    // Argentina sources (from v9)
+    locations:[
+      { id:'ranch', icon:'🌾', name:'Ranch House (Pampas)', blurb:'Talk with Mateo; read a local clipping about windbreaks.',
+        sources:[
+          {sid:'dlg_mateo', kind:'dialogue', title:'Talk to Mateo (gaucho)', who:'Mateo Álvarez', nodes:{
+            start:{ text:'Buenas, viajero. Sit, take some mate. The wind never clocks out here on the Pampas.', choices:[
+              {label:'Why is this land so good for grain and cattle?', next:'soil'},
+              {label:'Tell me about the winds.', next:'winds'},
+              {label:'What do you raise here?', next:'stock'},
+              {label:'Thanks, that\'s enough for now.', next:'end'}
+            ]},
+            soil:{ evidence:true,  text:'Under our boots? <mark data-eid="ev_moll">Mollisols</mark>—dark, crumbly soils, rich with organic matter. Roots slide in like a knife. With around <mark data-eid="ev_rain">800–1,000 mm of rain</mark> most years, wheat and grasses don’t go thirsty.', choices:[
+              {label:'How do you protect that soil?', next:'protect'},{label:'Back', next:'start'}
+            ]},
+            protect:{ text:'We plant <mark data-eid="ev_wbreak">windbreak rows</mark> of trees and practice <mark data-eid="ev_rotate">crop rotation</mark>. Less blow-away, fewer pests, happier pastures.', choices:[{label:'Back', next:'start'}]},
+            winds:{ text:'Two old friends: the cool <mark data-eid="ev_pampero">Pampero</mark> sweeping in from the south after a front—cleans the air— and in the west by the mountains, a warm, dry downslope called the <mark data-eid="ev_zonda">Zonda</mark>. That one can parch you fast.', choices:[{label:'Back', next:'start'}]},
+            stock:{ text:'Grain in, cattle out. Wheat, soy, pasture grasses—then beef and dairy. On Sundays we make <i>asado</i> and try not to talk shop.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Vaya con cuidado. Storms roll in quick out here.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_pampa', kind:'news', title:'La Voz Pampeana — Farm & Range', html:`
+            <div class="news">
+              <div class="mast">LA VOZ PAMPEANA</div>
+              <div class="sub">Field & Range · Monthly Bulletin</div>
+              <div class="col">
+                <p>County agents reminded growers that the region’s <mark data-eid="ev_moll2" title="A fertile soil order rich in organic matter.">Mollisols</mark> stay healthy with <mark data-eid="ev_rotate2">rotation</mark> and <mark data-eid="ev_wbreak2">windbreaks</mark>. “Topsoil is our savings account,” one rancher said.</p>
+                <p>Average rainfall sits near <mark data-eid="ev_rain2">800–1,000 mm</mark>, but summer storms can be fierce. After last week’s <mark data-eid="ev_pampero2">Pampero</mark>, crews checked fences and shelterbelts.</p>
+              </div>
+              <div class="stamp">Agronomy Desk</div>
+            </div>`},
+          {sid:'plaq_wbreak', kind:'plaque', title:'Yard Sign — Shelterbelt', html:`
+            <div class="artifact">
+              <b>SHELTERBELT</b><br>
+              Lines of trees slow wind and catch dust. Benefits: less <mark data-eid="ev_erosion" title="When soil is carried away by wind or water.">erosion</mark>, better moisture, calmer livestock.
+            </div>`}
+],
+        task:'Explain why the Pampas support grain & cattle, and name one practice to protect soils.' ,
+        check:{kind:'sa', key:['moist','rain','mollisol','fertile','grass','wheat','soy','cattle','windbreak','rotation','erosion']},
+        award:'Moist Atlantic air + fertile mollisols → grain & cattle; windbreaks/rotation curb erosion.'
+      },
+
+      { id:'pass', icon:'⛰️', name:'Andes Pass (Overlook)', blurb:'Read a summit plaque and chat with a ranger about rain shadow.',
+        sources:[{sid:'dlg_guard', kind:'dialogue', title:'Talk to Sofía (park ranger)', who:'Sofía Quiroga', nodes:{
+            start:{ text:'Welcome to the pass. The Andes divide more than maps—watch the clouds work.', choices:[
+              {label:'Why is it wetter on the west and drier on the east?', next:'shadow'},
+              {label:'Is there a special wind here?', next:'foehn'},
+              {label:'Any tips for crossing?', next:'tips'},
+              {label:'Thanks, that\'s all.', next:'end'}
+            ]},
+            shadow:{ evidence:true,  text:'Moist Pacific air rises on the windward side, cools, and drops rain or snow. By the time the air sinks on this side, it’s drier and warmer: the <mark data-eid="ev_shadow">rain shadow</mark>. That’s why the <mark data-eid="ev_steppe">Patagonian steppe</mark> spreads eastward.', choices:[{label:'Back', next:'start'}]},
+            foehn:{ text:'Locals call it the <mark data-eid="ev_zonda2">Zonda</mark>—a <mark data-eid="ev_foehn">foehn</mark>-type downslope wind. Hot, dry, and fast. Fire danger spikes, tempers too.', choices:[{label:'Back', next:'start'}]},
+            tips:{ text:'Layers, water, and respect for altitude. Weather flips like a coin here.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Safe travels.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'plaq_shadow', kind:'plaque', title:'Wayside: Rain Shadow', html:`
+            <div class="artifact">
+              <b>RAIN SHADOW</b><br>
+              Windward = rising, cooling air → <mark data-eid="ev_precip">precipitation</mark>.<br>
+              Leeward = sinking, warming air → <mark data-eid="ev_arid">drier climate</mark>.<br>
+              East of the Andes: <mark data-eid="ev_steppe2">steppe grasslands (&lt;300 mm/yr)</mark>.
+            </div>`},
+          {sid:'diag_shadow', kind:'artifact', title:'Sketch — Rain Shadow Diagram', html:`
+            <div class="artifact">
+              <b>RAIN SHADOW DIAGRAM</b><br>
+              Windward: rising air → cooling → precipitation.<br>
+              Leeward: sinking air → warming → drier.<br>
+              <i>Andes cast a long dry lee to the east.</i>
+            </div>`}
+],
+        task:'Name the effect and the leeward biome.',
+        check:{kind:'sa', key:['rain shadow','steppe','patagonia']},
+        award:'Rain shadow → dry Patagonian steppe on the leeward east.'
+      },
+
+      { id:'survey', icon:'📐', name:'Survey Shed (Ledger)', blurb:'Decode a brand key; confirm the bearing & distance.',
+        sources:[{sid:'dlg_glacio', kind:'dialogue', title:'Talk to Dr. Luna (glaciologist)', who:'Dra. Luna Flores', nodes:{
+            start:{ text:'You made it to the survey site—watch your step on the moraine.', choices:[
+              {label:'How do glaciers grow or shrink?', next:'massbal'},
+              {label:'What am I seeing at the ice front?', next:'terms'},
+              {label:'Do glaciers affect rivers?', next:'rivers'},
+              {label:'That\'s enough for now.', next:'end'}
+            ]},
+            massbal:{ evidence:true,  text:'It’s a balance. In the <mark data-eid="ev_accum">accumulation zone</mark>, snowfall adds mass; in the <mark data-eid="ev_ablat">ablation zone</mark>, melting and <mark data-eid="ev_calve">calving</mark> remove it. Shift the balance, the tongue advances or retreats.', choices:[{label:'Back', next:'start'}]},
+            terms:{ text:'At the terminus: a broken cliff of ice, meltwater, and chunks sloughing off—that’s <mark data-eid="ev_calve2">calving</mark>. These ridges underfoot? <mark data-eid="ev_moraine">Moraines</mark>—piles of rock the glacier pushed like a bulldozer.', choices:[{label:'Back', next:'start'}]},
+            rivers:{ text:'Yes—glaciers feed headwaters and load streams with fine <mark data-eid="ev_silt">silt</mark>. Turquoise lakes, cloudy rivers.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Log your observations—future you will thank you.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'log_field', kind:'plaque', title:'Field Log — Southern Icefield', html:`
+            <div class="artifact">
+              <b>FIELD LOG</b> — Team Flores<br>
+              08:10 — Stake 3 exposed 9 cm since last visit.<br>
+              09:40 — Meltwater channel increased discharge; water opaque with <mark data-eid="ev_silt2">glacial flour</mark>.<br>
+              11:15 — Small <mark data-eid="ev_calve3">calving</mark> at terminus.
+            </div>`},
+          {sid:'card_compass', kind:'artifact', title:'Reference — Bearing & Distance', html:`
+            <div class="artifact">
+              <b>FIELD REF</b><br>
+              Bearings are given as compass directions (e.g., NNE) and distances (e.g., 50 km).
+            </div>`}
+],
+        task:'Name the bearing and distance from the windmill to the survey point.',
+        check:{kind:'sa', key:['nne','50','km']},
+        award:'Survey point lies NNE 50 km from the windmill.'
+      },
+
+      { id:'harbor', icon:'⚓', name:'Harbor Office (Invoice)', blurb:'Check a bill of lading and talk to a clerk about exports.',
+        sources:[{sid:'dlg_port', kind:'dialogue', title:'Talk to Marina (port officer)', who:'Marina Benítez', nodes:{
+            start:{ text:'Harbor office—wipe your boots, that’s not our mud. What brings you in?', choices:[
+              {label:'How does this port connect to the Pampas?', next:'grain'},
+              {label:'What kind of water is the Río de la Plata?', next:'estu'},
+              {label:'What moves cargo inland?', next:'move'},
+              {label:'I\'m all set, thanks.', next:'end'}
+            ]},
+            grain:{ evidence:true,  text:'Grain flows from the Pampas by road and barge to bulk terminals. We ship wheat, corn, soy—then bring back machinery and goods. A giant circle.', choices:[{label:'Back', next:'start'}]},
+            estu:{ text:'It’s an <mark data-eid="ev_estuary">estuary</mark>—a wide, brackish mouth where river meets sea. Tides, winds, and river flow all steer ships here. Silt is always trying to win.', choices:[{label:'Back', next:'start'}]},
+            move:{ text:'Barges on rivers, trucks on highways, and trains where the track’s decent. Everything bows to weather and water levels.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Fair winds and following seas.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'bulletin_port', kind:'news', title:'Port Bulletin — Operations', html:`
+            <div class="news">
+              <div class="mast">PUERTO — OPERATIONS DESK</div>
+              <div class="col">
+                <p>Barges reported slower travel upstream due to low water and extra <mark data-eid="ev_silt3">silt</mark> at bends. Dredger <i>Río Azul</i> cleared the channel near km 82.</p>
+                <p>Cargo mix this week: <mark data-eid="ev_bulk">bulk grain</mark>, <mark data-eid="ev_beef">chilled beef</mark>, <mark data-eid="ev_mach">ag machinery</mark>. Harbor pilots noted gusty <mark data-eid="ev_pampero3">Pampero</mark> during evening departures.</p>
+              </div>
+            </div>`},
+          {sid:'inv_goods', kind:'artifact', title:'Invoice — Grain & Beverages', html:`
+            <div class="artifact">
+              <b>INVOICE</b><br>
+              Bulk grain outbound; beverages inbound. Modal mix: barge + truck.
+            </div>`}
+],
+        task:'Explain whether this describes Pampas vegetation and why or why not.',
+        check:{kind:'sa', key:['not','pampas','temperate','grassland','tropical','forest','elsewhere']},
+        award:'Pampas are temperate grasslands; tropical timber suggests a different biome (not Pampas).'
+      }
+    ],
+    synthesis:{
+      prompt:'Pull together what you learned in Argentina. Use evidence from conversations, plaques, and clippings to explain the Pampas–Andes contrast and how people work with the land.',
+      mc:{ q:'Which factor most explains why the Pampas support grain and cattle?', options:['Port access to the Atlantic','High mountain trade','Ski tourism','Inland isolation'], a:'Port access to the Atlantic' },
+      riddle:{ text:'“Where earth is bread and sea is silver, hooves write the harvest. Name the endless green.”', answer:['pampas'] },
+      reward:'FEATHER — Grassland Shard (Argentina)'
+    }
+  },
+
+  chile:{
+    id:'chile',
+    name:'Chile',
+    tu:5,
+    scene:{w:520,h:300, caption:'Atacama Desert — Observatory dome under cold-current skies (pixel-art)'},
+    intro:'Thin air and dry winds. Above a desert ridge, an observatory dome turns its eye to the stars.',
+    host:{
+      who:'Doña Marisol',
+      nodes:{
+        start:{ text:'The desert tells the truth with thin air and cold currents', choices:[
+          {label:'Where should we start?', next:'hint1'},
+          {label:'Any second stop?', next:'hint2'},
+          {label:'Thanks!', next:'end'}
+        ]},
+        hint1:{ text:'Head to the High Andes Outpost—frost by night explains altitude', choices:[{label:'Back', next:'start'}]},
+        hint2:{ text:'Then trace the cold wind at the Humboldt Shore Post before visiting the Observatory and Mining Camp', choices:[{label:'Back', next:'start'}]},
+        end:{ text:'Layers, agua, y paciencia—mountains teach slowly', choices:[{label:'Leave', next:'_close'}]}
+      }
+    },
+    hotspots:[
+      { id:'observatory', label:'Observatory Log', x: Math.floor(520*0.62), y: Math.floor(300*0.44), r:26 },
+      { id:'port',        label:'Coastal Port',    x: Math.floor(520*0.18), y: Math.floor(300*0.70), r:26 },
+      { id:'mining',      label:'Mining Camp',     x: Math.floor(520*0.72), y: Math.floor(300*0.70), r:26 },
+      { id:'pass',        label:'Mountain Pass',   x: Math.floor(520*0.46), y: Math.floor(300*0.30), r:26 },
+    ],
+    locations:[
+      { id:'observatory', icon:'🔭', name:'Observatory Log (Atacama Ridge)', blurb:'Read an observing log & speak with an astronomer.',
+        sources:[{sid:'dlg_astro', kind:'dialogue', title:'Talk to Dr. Vega (astronomer)', who:'Dra. Inés Vega', nodes:{
+            start:{ text:'Careful stepping between dishes. The sky is quiet here—and that’s everything.', choices:[
+              {label:'Why build observatories in the Atacama?', next:'why'},
+              {label:'What makes a good observing night?', next:'night'},
+              {label:'Is this radio or optical astronomy?', next:'type'},
+              {label:'Thanks, that\'s all.', next:'end'}
+            ]},
+            why:{ evidence:true,  text:'High altitude, almost no clouds, and extremely low <mark data-eid="ev_pw2">precipitable water vapor</mark>. Dry air means less absorption and better clarity.', choices:[{label:'Back', next:'start'}]},
+            night:{ text:'We check “seeing” for atmospheric steadiness, wind for vibration, humidity for condensation. Some nights are diamonds; others are soup.', choices:[{label:'Back', next:'start'}]},
+            type:{ text:'Both live in Chile. Arrays like ALMA study the universe in millimeter wavelengths; mountaintop observatories do optical/infrared. Different windows, same sky.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'If the red light is on, please whisper.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'plaq_obs', kind:'plaque', title:'Observatory Sign — Dry Skies', html:`
+            <div class="artifact">
+              <b>DRY SKIES</b><br>
+              High elevation + desert climate → exceptional transparency; low <mark data-eid="ev_pw3">PWV</mark> and little light pollution.
+            </div>`},
+          {sid:'log_obs', kind:'news', title:'Observing Log — Seeing & PWV', html:`
+            <div class="news">
+              <div class="mast">OBSERVING LOG</div>
+              <div class="sub">Night Conditions</div>
+              <div class="col">
+                <p>PWV below 1 mm; seeing 0.6″ most of the night. Marine layer stayed offshore.</p>
+              </div>
+            </div>`}
+],
+        task:'Explain two reasons the Atacama is ideal for astronomy.',
+        check:{kind:'sa', key:['dry','clear','high','altitude','water vapor','thin air','dark','cloudless','stable']},
+        award:'Atacama offers high, dry, clear nights with very low water vapor — ideal for astronomy.'
+      },
+
+      { id:'port', icon:'⚓', name:'Coastal Port (Upwelling Coast)', blurb:'Read a coastal newspaper; talk to a fisher.',
+        sources:[{sid:'dlg_coast', kind:'dialogue', title:'Talk to Pilar (fisher)', who:'Pilar Andrade', nodes:{
+            start:{ text:'If the upwelling stays strong, the nets sing. If El Niño comes, we repair gear and tell stories.', choices:[
+              {label:'What is the Humboldt Current?', next:'humb'},
+              {label:'How does El Niño change things?', next:'nino'},
+              {label:'Any hazards on this coast?', next:'haz'},
+              {label:'That helps—thanks.', next:'end'}
+            ]},
+            humb:{ evidence:true,  text:'A cold current flows north along Chile. Winds push surface water away; deep, nutrient-rich water rises—<mark data-eid="ev_upwell">upwelling</mark>. Plankton bloom, fish follow, we follow fish.', choices:[{label:'Back', next:'start'}]},
+            nino:{ text:'El Niño warms the surface and weakens upwelling. Nutrients drop; fish move or die off; we shift to other work and watch prices climb.', choices:[{label:'Back', next:'start'}]},
+            haz:{ text:'Quakes and <mark data-eid="ev_tsunami">tsunamis</mark>. Sirens and blue evacuation lines are there for a reason. In calmer times: fog, swell, and harbor bars.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Fresh catch is best before the afternoon wind.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_coast', kind:'news', title:'Harbor Notice — Fisheries', html:`
+            <div class="news">
+              <div class="mast">PUERTO — FISHERIES DESK</div>
+              <div class="col">
+                <p>Upwelling indexes remained strong this week; <mark data-eid="ev_sardine">sardine</mark> and <mark data-eid="ev_anchovy">anchovy</mark> landings increased. Harbor pilots noted afternoon southerlies.</p>
+                <p>Safety reminder: tsunami evacuation routes painted on streets; new signage installed near the pier.</p>
+              </div>
+            </div>`},
+          {sid:'card_marine', kind:'plaque', title:'Note — Marine Layer', html:`
+            <div class="artifact">
+              <b>MARINE LAYER</b><br>
+              Cool, stable air forms low stratus; drizzle possible, but little true rain.
+            </div>`}
+],
+        task:'Explain how the cold current shapes the coastal climate and economy.',
+        check:{kind:'sa', key:['cold','humboldt','peru current','upwelling','fish','fisheries','fog','camanchaca','cool','dry']},
+        award:'Cold Humboldt Current → cool, dry, foggy coast; upwelling fuels fisheries that drive the port economy.'
+      },
+
+      { id:'mining', icon:'⛏️', name:'Mining Camp (Copper Ridge)', blurb:'Meet a foreman; scan a freight manifest.',
+        sources:[{sid:'dlg_atacama', kind:'dialogue', title:'Talk to Camila (desert guide)', who:'Camila Olivares', nodes:{
+            start:{ text:'People think “nothing lives here.” Then morning fog rolls in and the hills turn green for a week.', choices:[
+              {label:'Why is the Atacama so dry?', next:'dry'},
+              {label:'What life survives here?', next:'life'},
+              {label:'What resources are found?', next:'res'},
+              {label:'That\'s enough for now.', next:'end'}
+            ]},
+            dry:{ text:'Three strikes: <mark data-eid="ev_subtropical">subtropical high-pressure</mark> air descends and dries; the <mark data-eid="ev_humboldt">Humboldt Current</mark> cools the coast, stabilizing air; and the Andes cast a <mark data-eid="ev_rainshadow">rain shadow</mark>. Result: parts get &lt;2 mm/yr.', choices:[{label:'Back', next:'start'}]},
+            life:{ text:'Fog-fed <mark data-eid="ev_lomas">lomas</mark> vegetation during the <i>camanchaca</i>; hardy beetles, cacti, and bacteria. When rare rain falls, valleys burst with flowers.', choices:[{label:'Back', next:'start'}]},
+            res:{ evidence:true,  text:'Salars (salt flats) host <mark data-eid="ev_lithium">lithium</mark> brines; old nitrate works tell industrial history. Astronomy also “mines” the sky here—dry, stable air.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Sunscreen, hat, and patience with the dust.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_dry', kind:'news', title:'Desert Bulletin — Field Ops', html:`
+            <div class="news">
+              <div class="mast">ATACAMA — FIELD OPS</div>
+              <div class="col">
+                <p>Fog nets near Paposo captured steady <mark data-eid="ev_camanchaca">camanchaca</mark> overnight, enough to fill sample bottles. Lomas slopes showed early bloom.</p>
+                <p>Survey crews noted stable <mark data-eid="ev_pw">precipitable water vapor</mark> readings &lt;3 mm, excellent for observations.</p>
+              </div>
+            </div>`},
+          {sid:'map_ore', kind:'artifact', title:'Map — Ore Belts & Water', html:`
+            <div class="artifact">
+              <b>ORE & WATER</b><br>
+              Copper belts track ancient intrusions; operations pipe water or use desalination.
+            </div>`}
+],
+        task:'Explain why mines operate in this desert and one challenge they must solve.',
+        check:{kind:'sa', key:['copper','ore','mining','export','water','scarce','desal','pipeline','arid','dry']},
+        award:'Copper deposits along the Andes margin; aridity allows year-round roads but water is scarce, solved with wells/desal pipelines.'
+      },
+
+      { id:'pass', icon:'⛰️', name:'Mountain Pass (Atmospheric Setups)', blurb:'Read a pass plaque & chat with a driver.',
+        sources:[{sid:'dlg_ranger', kind:'dialogue', title:'Talk to Tomás (ranger)', who:'Tomás Riquelme', nodes:{
+            start:{ text:'Up here the ground is young and moody. Volcano cones, fresh scars, and snowfields that make their own weather.', choices:[
+              {label:'Why so many quakes and volcanoes?', next:'plates'},
+              {label:'What hazards should travelers watch for?', next:'haz'},
+              {label:'Any quick map tips?', next:'map'},
+              {label:'Thanks, I\'m good.', next:'end'}
+            ]},
+            plates:{ evidence:true,  text:'The <mark data-eid="ev_nazca">Nazca Plate</mark> dives beneath South America along a <mark data-eid="ev_subduct">subduction</mark> zone. Rocks melt and rise as magma, building <mark data-eid="ev_strato">stratovolcanoes</mark>. Plates lock—pressure builds—then slip: <mark data-eid="ev_quake">earthquakes</mark>.', choices:[{label:'Back', next:'start'}]},
+            haz:{ text:'Ash fall, lahars (volcanic mudflows), rockfall, and altitude. After quakes near the coast, add tsunamis to the list.', choices:[{label:'Back', next:'start'}]},
+            map:{ text:'Steep contours, U-shaped valleys carved by glaciers, and long north–south ridges: classic Andes. Rivers cut west and east toward the sea and interior.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Step softly; the mountain listens.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'plaq_subduct', kind:'plaque', title:'Wayside: Subduction Zone', html:`
+            <div class="artifact">
+              <b>SUBDUCTION</b><br>
+              Oceanic <mark data-eid="ev_nazca2">Nazca</mark> plate sinks beneath continental South America → melting → <mark data-eid="ev_arc">volcanic arc</mark> and frequent <mark data-eid="ev_seismic">seismicity</mark>.
+            </div>`},
+          {sid:'note_baro', kind:'plaque', title:'Note — Altitude & Weather', html:`
+            <div class="artifact">
+              <b>ALTITUDE</b><br>
+              Temperature drops with height; downslope foehn winds can bring sudden warming and drying.
+            </div>`}
+],
+        task:'Name two reasons the Atacama is extremely dry.',
+        check:{kind:'sa', key:['rain shadow','double','subtropical high','humboldt','cold current','andes','coast range','descending air']},
+        award:'Cold current + subtropical high + double rain shadows (Coast Range & Andes) → Atacama aridity.'
+      }
+    ],
+    synthesis:{
+      prompt:'Make sense of Chile’s extremes—from quakes and volcanoes in the Andes to the dry skies of the Atacama and the cold Humboldt Current along the coast. Use your saved evidence to support your answers.',
+      mc:{ q:'Which plate interaction causes Chile’s frequent earthquakes?', options:['Humboldt (Peru) Current','Gulf Stream','Kuroshio','Agulhas'], a:'Humboldt (Peru) Current' },
+      riddle:{ text:'“Where the sky is a mirror and rain forgets to fall, which desert hosts the domes?”', answer:['atacama'] },
+      reward:'FEATHER — Desert Shard (Chile)'
+    }
+  },
+
+  colombia:{
+    id:'colombia',
+    name:'Colombia',
+    tu:5,
+    scene:{w:520,h:300, caption:'Magdalena River — coffee slopes and cloud bands (pixel-art, animated)'},
+    intro:'From high páramo moors to coffee ridges and the Magdalena corridor to the Caribbean, Colombia runs on altitudes and valleys.',
+    host:{
+      who:'Don Mateo',
+      nodes:{
+        start:{ text:'Our country runs on altitude and valleys', choices:[
+          {label:'Where should we start?', next:'hint1'},
+          {label:'Any second stop?', next:'hint2'},
+          {label:'Thanks!', next:'end'}
+        ]},
+        hint1:{ text:'Sip clouds at the Coffee Hacienda—mid-elevation slopes and orographic mist are the secret', choices:[{label:'Back', next:'start'}]},
+        hint2:{ text:'Ride the river sense at the Magdalena Wharf; the Páramo Hut will make the water logic click', choices:[{label:'Back', next:'start'}]},
+        end:{ text:'Take it steady—curves and clouds hide the best views', choices:[{label:'Leave', next:'_close'}]}
+      }
+    },
+    hotspots:[
+      { id:'wharf',    label:'River Wharf (Magdalena)', x: Math.floor(520*0.30), y: Math.floor(300*0.66), r:26 },
+      { id:'hacienda', label:'Coffee Hacienda',          x: Math.floor(520*0.66), y: Math.floor(300*0.44), r:26 },
+      { id:'paramo',   label:'Páramo Research Hut',      x: Math.floor(520*0.52), y: Math.floor(300*0.25), r:26 },
+      { id:'port',     label:'Caribbean Port',           x: Math.floor(520*0.82), y: Math.floor(300*0.62), r:26 }
+    ],
+    locations:[
+      { id:'wharf', icon:'🛶', name:'Magdalena River Wharf', blurb:'Talk to a barquero; read a river circular and a cargo docket.',
+        sources:[
+          {sid:'dlg_barquero', kind:'dialogue', title:'Talk to Isabel (boat pilot)', who:'Isabel Giraldo', nodes:{
+            start:{ text:'Up here the Magdalena threads the valleys. Currents change with rains; towns sit on benches above flood.', choices:[
+              {label:'Why does this river form a travel corridor?', next:'corridor'},
+              {label:'How do floods shape life here?', next:'floods'},
+              {label:'Gracias, that’s all.', next:'end'}
+            ]},
+            corridor:{ text:'Ranges funnel movement. Between the Cordilleras, boats and roads follow the river. Passes connect side valleys.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            floods:{ text:'Seasonal rises—docks on stilts, houses set back, and timetables flex when the water jumps.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Mind your mooring—eddy lines tug the hull.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_mag', kind:'news', title:'Circular — Magdalena Levels', html:`
+            <div class="news">
+              <div class="mast">MAGDALENA BULLETIN</div>
+              <div class="sub">Flows & Landings</div>
+              <div class="story">
+                <p>With tributaries rising, barge drafts are limited upriver. Road crews report washouts along benches and switchbacks.</p>
+              </div>
+              <div class="stamp">River Authority</div>
+            </div>`},
+          {sid:'dock_docket', kind:'artifact', title:'Cargo Docket — Coffee Bags', html:`
+            <div class="artifact">
+              <b>LOAD SHEET</b><br>
+              Sacks from the coffee zone head downriver to ports; lightering used at low water.
+            </div>`}
+        ],
+        task:'Explain why the Magdalena valley is a key travel corridor and one way people cope with seasonal floods.',
+        check:{kind:'sa', key:['corridor','valley','between cordilleras','funnel','boats','roads','flood','benches','stilts','timetable']},
+        award:'Ranges funnel movement—river as corridor; people use benches/docks on stilts and flex schedules with floods.'
+      },
+      { id:'hacienda', icon:'☕', name:'Coffee Hacienda (Eje Cafetero)', blurb:'Meet a caficultor; read a slope card and a rainfall note.',
+        sources:[
+          {sid:'dlg_cafe', kind:'dialogue', title:'Talk to Don Mateo (caficultor)', who:'Mateo Valencia', nodes:{
+            start:{ text:'Good beans like a cool morning and clouds by noon. Volcanic soils hold well on these slopes.', choices:[
+              {label:'Why grow at mid-elevations?', next:'elev'},
+              {label:'How do you avoid erosion?', next:'erosion'},
+              {label:'That’s enough.', next:'end'}
+            ]},
+            elev:{ text:'<mark data-eid="ev_oro">Orographic</mark> lift—moist air climbs, cools, and drops mist. Mid-elevation keeps heat moderate.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            erosion:{ text:'Contour rows, shade trees, and terraces; roots hold soil during storms.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Have a cup before you go.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'card_slope', kind:'artifact', title:'Field Card — Contour Rows', html:`
+            <div class="artifact">
+              <b>CONTOUR</b><br>
+              Plant along elevation lines; slow runoff and keep soil in place.
+            </div>`},
+          {sid:'note_rain', kind:'plaque', title:'Note — Cloud Belt', html:`
+            <div class="artifact">
+              <b>CLOUD BELT</b><br>
+              Mountain slopes collect frequent mist and showers, feeding springs and steady soil moisture.
+            </div>`}
+        ],
+        task:'Name two reasons Colombian highlands suit coffee and one practice to protect the soil.',
+        check:{kind:'sa', key:['altitude','mid elevation','orographic','volcanic','cloud','mist','shade','contour','terrace','roots']},
+        award:'Mid-elevation + orographic clouds + volcanic soils favor coffee; contour rows/shade/terraces curb erosion.'
+      },
+      { id:'paramo', icon:'🧭', name:'Páramo Research Hut', blurb:'Talk to a hydrologist; read a plant sheet and a watershed map.',
+        sources:[
+          {sid:'dlg_paramo', kind:'dialogue', title:'Talk to Dr. Ruíz (hydrologist)', who:'Dr. Ángela Ruíz', nodes:{
+            start:{ text:'Above the trees, the páramo stores water like a sponge—frailejones sip clouds.', choices:[
+              {label:'How does páramo affect rivers?', next:'water'},
+              {label:'What makes it unique?', next:'unique'},
+              {label:'Thanks.', next:'end'}
+            ]},
+            water:{ text:'Peat and plants hold fog drip; slow release feeds headwaters year-round.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            unique:{ text:'Cold days, colder nights; endemic plants adapted to high UV and wind.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Step gently—the ground is living storage.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'sheet_fraile', kind:'artifact', title:'Plant Sheet — Frailejón', html:`
+            <div class="artifact">
+              <b>FRAILEJÓN</b><br>
+              Velvet leaves trap moisture; tall rosettes slow wind and shade soil.
+            </div>`},
+          {sid:'map_waters', kind:'artifact', title:'Map — Headwaters', html:`
+            <div class="artifact">
+              <b>HEADWATERS</b><br>
+              High moors feed streams that gather into the Magdalena and Orinoco systems.
+            </div>`}
+        ],
+        task:'Explain one way páramo landscapes influence rivers and one plant adaptation found there.',
+        check:{kind:'sa', key:['sponge','peat','fog','drip','release','headwaters','frailejon','velvet leaves','rosette']},
+        award:'Páramo stores and slowly releases water to headwaters; frailejón traps moisture with velvet leaves.'
+      },
+      { id:'port', icon:'⚓', name:'Caribbean Port (Barranquilla)', blurb:'Talk to a dispatcher; read a shipping table and a delta note.',
+        sources:[
+          {sid:'dlg_desp', kind:'dialogue', title:'Talk to Lucía (dispatcher)', who:'Lucía Cárdenas', nodes:{
+            start:{ text:'Magdalena cargo hits the sea here. Sediment builds the delta and reshapes channels.', choices:[
+              {label:'What challenges do deltas cause?', next:'delta'},
+              {label:'How does this connect the interior?', next:'connect'},
+              {label:'Thanks.', next:'end'}
+            ]},
+            delta:{ evidence:true,  text:'Shifting bars—pilots watch depth and tides; dredging keeps lanes open.', choices:[{label:'Back', next:'start'}]},
+            connect:{ text:'River-to-sea link: coffee, coal, and goods from the interior reach Atlantic routes.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Clearances posted at the harbor office.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'table_ship', kind:'artifact', title:'Table — Depth & Draft', html:`
+            <div class="artifact">
+              <b>DRAFT</b><br>
+              Max vessel drafts by tide window; bar depths updated weekly.
+            </div>`},
+          {sid:'note_delta', kind:'plaque', title:'Note — Delta Dynamics', html:`
+            <div class="artifact">
+              <b>DELTA</b><br>
+              Sediment builds islands and bars; storms and floods rearrange channels.
+            </div>`}
+        ],
+        task:'Describe one challenge at river deltas and how the Magdalena connects interior Colombia to the world.',
+        check:{kind:'sa', key:['sediment','bars','shifting','dredge','draft','tide','link','atlantic','exports','interior']},
+        award:'Shifting sediment bars require dredging/pilotage; the Magdalena links interior cargo to Atlantic routes.'
+      }
+    ],
+    synthesis:{
+      prompt:'Unify Colombia’s vertical world: páramo water stores, coffee slopes, the Magdalena corridor, and the Caribbean outlet.',
+      mc:{ q:'Which pair best explains coffee success in Colombia’s highlands and the north–south travel route?',
+          options:[
+            'Mid-elevation slopes with orographic clouds and fertile volcanic soils; a river corridor between mountain ranges',
+            'Cold ocean currents create inland deserts; a coastal highway handles most transport',
+            'A tectonic rift valley causes both coffee growth and sea trade',
+            'Equatorial heat alone grows coffee anywhere; air travel is the only route through mountains'
+          ],
+          a:'Mid-elevation slopes with orographic clouds and fertile volcanic soils; a river corridor between mountain ranges'
+      },
+      riddle:{ text:'“From moor and mist to barges and bays—I bind the Andes’ towns. Name this river road.”', answer:['magdalena'] },
+      reward:'FEATHER — Corridor Shard (Colombia)'
+    }
+  },
+  brazil:{
+    id:'brazil',
+    name:'Brazil',
+    tu:5,
+    scene:{w:520,h:300, caption:'Pantanal Marsh — boardwalk at sunrise; Iguaçu spray on the horizon (pixel-art)'},
+    intro:'Flood pulse wetlands in the west, roaring falls in the south, rainforest in the north, and the Cerrado savanna between.',
+    host:{
+      who:'Ranger Camila',
+      nodes:{
+        start:{ text:'Floods here breathe with the seasons', choices:[
+          {label:'Where should we start?', next:'hint1'},
+          {label:'Any second stop?', next:'hint2'},
+          {label:'Thanks!', next:'end'}
+        ]},
+        hint1:{ text:'Begin at the Pantanal Field Station—boardwalks above the water tell the flood pulse story', choices:[{label:'Back', next:'start'}]},
+        hint2:{ text:'Next, feel the roar at Iguaçu Falls Park HQ—mist, basalt, and rainbows', choices:[{label:'Back', next:'start'}]},
+        end:{ text:'Watch your step—the planks get slick at dawn', choices:[{label:'Leave', next:'_close'}]}
+      }
+    },
+    hotspots:[
+      { id:'pantanal', label:'Pantanal Field Station',    x: Math.floor(520*0.24), y: Math.floor(300*0.66), r:26 },
+      { id:'falls',    label:'Iguaçu Falls Park HQ',     x: Math.floor(520*0.78), y: Math.floor(300*0.58), r:26 },
+      { id:'manaus',   label:'Manaus River Port',   x: Math.floor(520*0.55), y: Math.floor(300*0.30), r:26 },
+      { id:'cerrado',  label:'Cerrado Farmstead',   x: Math.floor(520*0.50), y: Math.floor(300*0.72), r:26 },
+    ],
+    locations:[
+      { id:'pantanal', icon:'🦜', name:'Pantanal Field Station (Wetlands)', blurb:'Talk to a ranger; read a flood bulletin and a field plaque.' ,
+        sources:[
+          {sid:'dlg_camila', kind:'dialogue', title:'Talk to Camila (wetland ranger)', who:'Camila Duarte', nodes:{
+            start:{ text:'Welcome to the Pantanal. The river breathes—every year water rises and falls.', choices:[
+              {label:'Why does it flood so widely?', next:'flood'},
+              {label:'How do people live with the floods?', next:'people'},
+              {label:'Thanks, that’s all.', next:'end'}
+            ]},
+            flood:{ text:'We call it the <mark data-eid="ev_floodpulse">flood pulse</mark>—rains upstream on the <mark data-eid="ev_paraguay">Paraguay</mark> swell the plain. Slow water spreads for months.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            people:{ text:'Ranchers move cattle to <mark data-eid="ev_higher">higher ground</mark>. Boats replace trucks. Tourists come for jaguars and birds.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Watch your step—the boardwalk gets slick.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_pantanal', kind:'news', title:'Boletim do Pantanal — Flood Season Update', html:`
+            <div class="news">
+              <div class="mast">BOLETIM DO PANTANAL</div>
+              <div class="sub">Field Notes & Water Levels</div>
+              <div class="story">
+                <p>High water peaks two months after the heavy rains upstream. The slow rise keeps fish nurseries in the grasses. Navigation shifts to <mark data-eid="ev_boats">boats</mark>.</p>
+              </div>
+              <div class="stamp">Hydrology Desk</div>
+            </div>`},
+          {sid:'plaq_pulse', kind:'plaque', title:'Field Plaque — Flood Pulse', html:`
+            <div class="artifact">
+              <b>FLOOD PULSE</b><br>
+              Seasonal expansion and contraction of a river’s floodplain. Drives breeding cycles, fisheries, and travel patterns.
+            </div>`}
+        ],
+        task:'Explain why the Pantanal floods each year and one way people adapt to it.',
+        check:{kind:'sa', key:['flood pulse','seasonal','paraguay','rains','boats','higher','cattle','wet season','slow']},
+        award:'Seasonal flood pulse from Paraguay River rains; people switch to boats or move cattle to higher ground.'
+      },
+      { id:'falls', icon:'💦', name:'Iguaçu Falls Park HQ', blurb:'Meet a guide; read a park map and geology note.' ,
+        sources:[
+          {sid:'dlg_diego', kind:'dialogue', title:'Talk to Diego (park guide)', who:'Diego Alves', nodes:{
+            start:{ text:'Hear that roar? The <mark data-eid="ev_parana">Paraná</mark> cuts a hard <mark data-eid="ev_basalt">basalt</mark> plateau—hundreds of drops make Iguaçu.', choices:[
+              {label:'What shapes the falls?', next:'shape'},
+              {label:'What does the mist do?', next:'mist'},
+              {label:'Thanks.', next:'end'}
+            ]},
+            shape:{ evidence:true,  text:'Basalt steps and joints channel the water into many cataracts. Erosion is slow in hard rock.', choices:[{label:'Back', next:'start'}]},
+            mist:{ text:'Spray makes a humid <mark data-eid="ev_micro">microclimate</mark> with rainbows and lush plants on the rim.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Trail’s that way—ponchos help.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'plaq_basalt', kind:'plaque', title:'Park Note — Basalt Plateau', html:`
+            <div class="artifact">
+              <b>BASALT</b><br>
+              Dense volcanic rock forms a resistant cap. Rivers like the Paraná and Iguaçu plunge where the plateau breaks.
+            </div>`},
+          {sid:'map_falls', kind:'artifact', title:'Map — Falls & Rivers', html:`
+            <div class="artifact">
+              <b>CATARACTS</b><br>
+              Horse-shoe arcs and islands split the flow. Borderlands of Brazil & Argentina meet at the gorge.
+            </div>`}
+        ],
+        task:'Name the rock and the river behind Iguaçu Falls, and one effect of the spray.',
+        check:{kind:'sa', key:['basalt','paraná','parana','iguacu','mist','rainbow','microclimate','spray']},
+        award:'Paraná River plunges over a basalt plateau; spray creates rainbows and a humid microclimate.'
+      },
+      { id:'manaus', icon:'🚢', name:'Manaus River Port (Amazon)', blurb:'Talk to a boatman; read a shipping circular and a confluence card.' ,
+        sources:[
+          {sid:'dlg_renato', kind:'dialogue', title:'Talk to Renato (boatman)', who:'Renato Souza', nodes:{
+            start:{ text:'Manaus runs on rivers. Where the dark <mark data-eid="ev_negro">Rio Negro</mark> meets the pale <mark data-eid="ev_solimoes">Solimões</mark>, the waters flow side by side.', choices:[
+              {label:'Why don’t they mix quickly?', next:'mix'},
+              {label:'What moves goods here?', next:'goods'},
+              {label:'That’s enough.', next:'end'}
+            ]},
+            mix:{ text:'Different <mark data-eid="ev_temp">temperatures</mark>, speeds, and <mark data-eid="ev_sed">sediment</mark> loads—so you see a seam for miles.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            goods:{ text:'Boats and barges to Belém; long distances make timing tricky in the wet season.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Tie your knots proper—the current plays rough.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'news_manaus', kind:'news', title:'Shipping Circular — Manaus', html:`
+            <div class="news">
+              <div class="mast">MANAUS SHIPPING</div>
+              <div class="sub">Movements & Notices</div>
+              <div class="story">
+                <p>With river levels rising, carriers shift schedules. The <mark data-eid="ev_confluence">Encontro das Águas</mark> draws sightseers while tug traffic increases.</p>
+              </div>
+              <div class="stamp">Port Authority</div>
+            </div>`},
+          {sid:'artifact_meeting', kind:'artifact', title:'Card — Meeting of Waters', html:`
+            <div class="artifact">
+              <b>MEETING OF WATERS</b><br>
+              Blackwater of the Rio Negro meets the sandy Solimões; a sharp line runs downriver.
+            </div>`}
+        ],
+        task:'Describe what happens where the Rio Negro meets the Solimões and one shipping challenge.',
+        check:{kind:'sa', key:['meeting','meet','confluence','don’t mix','dont mix','line','temperature','speed','sediment','distance','schedule']},
+        award:'At the Meeting of Waters, two rivers run side by side (don’t mix quickly); long distances & wet-season levels complicate shipping.'
+      },
+      { id:'cerrado', icon:'🌿', name:'Cerrado Farm & Field Lab', blurb:'Visit a farm manager; read a field card and a soils notice.' ,
+        sources:[
+          {sid:'dlg_lara', kind:'dialogue', title:'Talk to Lara (farm manager)', who:'Lara Pires', nodes:{
+            start:{ text:'The Cerrado is a <mark data-eid="ev_savanna">savanna</mark>—grasses with scattered trees and deep roots.', choices:[
+              {label:'How do plants survive fires?', next:'fire'},
+              {label:'What about the soils?', next:'soils'},
+              {label:'Got it.', next:'end'}
+            ]},
+            fire:{ text:'Frequent fires—some natural, some managed. Many species resprout from protected buds.', choices:[{label:'Back', next:'start'}]},
+            soils:{ evidence:true,  text:'Soils are often acidic; farmers add <mark data-eid="ev_lime">lime</mark>. Water in the ground feeds big headwater systems.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Mind the fence line—anteaters step through like ghosts.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'card_cerrado', kind:'artifact', title:'Field Card — Savanna', html:`
+            <div class="artifact">
+              <b>SAVANNA</b><br>
+              Tropical grassland with scattered trees; adapted to seasonal drought and fire.
+            </div>`},
+          {sid:'notice_soil', kind:'plaque', title:'Notice — Soil Management', html:`
+            <div class="artifact">
+              <b>AMENDMENTS</b><br>
+              Liming and rotation help crops on acidic soils; conserving native cover protects water recharge.
+            </div>`}
+        ],
+        task:'Explain what the Cerrado is and one adaptation or human practice used there.',
+        check:{kind:'sa', key:['savanna','fire','deep roots','resprout','lime','rotation','acidic','water recharge','headwaters']},
+        award:'The Cerrado is a savanna; plants handle fire with deep roots, and farmers use lime/rotation to manage acidic soils.'
+      }
+    ],
+    synthesis:{
+      prompt:'Synthesize Brazil’s water and landforms: floodplains, falls, rainforest corridors, and savanna plateaus. Use your evidence.',
+      mc:{ q:'Which explanation best pairs Brazil’s flooded wetlands with its famous waterfalls?',
+          options:[
+            'Slow Paraguay floodplain creates a seasonal flood pulse; the Paraná River plunges over a basalt plateau at Iguaçu',
+            'Double rain shadow from two mountain ranges forms both wetlands and falls',
+            'Cold Humboldt Current cools Brazil’s coast, creating the Pantanal and Iguaçu Falls',
+            'A tectonic rift across central Brazil makes cliffs that trap floodwater'
+          ],
+          a:'Slow Paraguay floodplain creates a seasonal flood pulse; the Paraná River plunges over a basalt plateau at Iguaçu'
+      },
+      riddle:{ text:'“Where the river swells and breathes each year, painting plains with water and reeds—name this vast wetland.”', answer:['pantanal'] },
+      reward:'FEATHER — Waters Shard (Brazil)'
+    }
+  },
+  peru:{
+    id:'peru',
+    name:'Peru',
+    tu:5,
+    scene:{w:520,h:300, caption:'Andean Cloud Forests — terraces above the Urubamba; cold-current coast beyond (pixel-art)'},
+    intro:'Snow-fed spines, cloud forests that drip, a coastal desert chilled by a cold current, and a high lake cradled on the Altiplano.',
+    host:{
+      who:'Nayra',
+      nodes:{
+        start:{ text:'Stone steps hold the hills; clouds do the watering', choices:[
+          {label:'Where should we start?', next:'hint1'},
+          {label:'Any second stop?', next:'hint2'},
+          {label:'Thanks!', next:'end'}
+        ]},
+        hint1:{ text:'Walk the Sacred Valley Terraces—stone steps hold soil and heat like old friends', choices:[{label:'Back', next:'start'}]},
+        hint2:{ text:'Then listen to Lake Titicaca; the coast will feel colder once you meet the Humboldt Current', choices:[{label:'Back', next:'start'}]},
+        end:{ text:'Follow the llama track—shorter, steadier', choices:[{label:'Leave', next:'_close'}]}
+      }
+    },
+    hotspots:[
+      { id:'sacred',  label:'Sacred Valley (Cusco)',   x: Math.floor(520*0.56), y: Math.floor(300*0.46), r:26 },
+      { id:'titicaca',label:'Lake Titicaca',          x: Math.floor(520*0.78), y: Math.floor(300*0.38), r:26 },
+      { id:'head',    label:'Amazon Headwaters',      x: Math.floor(520*0.48), y: Math.floor(300*0.30), r:26 },
+      { id:'coast',   label:'Humboldt Coast (Lima)',  x: Math.floor(520*0.18), y: Math.floor(300*0.60), r:26 }
+    ],
+    locations:[
+      { id:'sacred', icon:'🧱', name:'Sacred Valley Terraces', blurb:'Meet a guide; read a stonework card and a slope note.',
+        sources:[
+          {sid:'dlg_nayra', kind:'dialogue', title:'Talk to Nayra (local guide)', who:'Nayra Quispe', nodes:{
+            start:{ text:'Here the mountains trade sun and mist by the hour. Terraces keep soil where it belongs.', choices:[
+              {label:'Why build terraces?', next:'terr'},
+              {label:'How do farmers handle altitude & water?', next:'alt'},
+              {label:'Thank you.', next:'end'}
+            ]},
+            terr:{ text:'Steep slopes invite <mark data-eid="ev_erosion2">erosion</mark>. Stone walls make steps that slow water and hold soil.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            alt:{ text:'Irrigation from snowmelt canals; crops matched to belts—potatoes higher, maize lower.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Follow the llama track—shorter, steadier.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'card_stone', kind:'artifact', title:'Field Card — Stone Terraces', html:`
+            <div class="artifact">
+              <b>ANDENES</b><br>
+              Inca stone terraces built along contours; trap soil, slow runoff, and make flat fields.
+            </div>`},
+          {sid:'note_slope', kind:'plaque', title:'Note — Slope & Aspect', html:`
+            <div class="artifact">
+              <b>ASPECT</b><br>
+              Facing sun or shade changes temperature and crop choice; walls store daytime heat.
+            </div>`}
+        ],
+        task:'Explain two reasons terraces are used in the Sacred Valley and one way altitude shapes farming.',
+        check:{kind:'sa', key:['steep','erosion','slow runoff','hold soil','flat fields','snowmelt','irrigation','crop belts','potatoes','maize','aspect']},
+        award:'Terraces slow runoff, curb erosion, and create flat fields; altitude leads to snowmelt canals and crop belts.'
+      },
+      { id:'titicaca', icon:'🛶', name:'Lake Titicaca (Altiplano)', blurb:'Talk to a boatmaker; read a reed card and a lake note.',
+        sources:[
+          {sid:'dlg_uro', kind:'dialogue', title:'Talk to Maira (boatmaker)', who:'Maira Uros', nodes:{
+            start:{ text:'Totora reeds make islands and boats. Thin air, strong sun—nights get cold fast.', choices:[
+              {label:'How do reeds help life here?', next:'reeds'},
+              {label:'What about climate at this altitude?', next:'climate'},
+              {label:'That’s all.', next:'end'}
+            ]},
+            reeds:{ text:'We weave <mark data-eid="ev_totora">totora</mark> for homes and hulls; new reeds replace the old as they waterlog.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            climate:{ text:'High UV, big day–night swings. Clear skies warm days; heat escapes at night—frost is common.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Bring a hat—and cocoa tea helps.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'card_reed', kind:'artifact', title:'Field Card — Totora Reeds', html:`
+            <div class="artifact">
+              <b>TOTORA</b><br>
+              Buoyant sedges used for islands, boats, and thatch; grow along shallow lake margins.
+            </div>`},
+          {sid:'note_lake', kind:'plaque', title:'Note — High Lake', html:`
+            <div class="artifact">
+              <b>ALTIPLANO</b><br>
+              Thin air, intense sun, and cold nights define life at ~3,800 m.
+            </div>`}
+        ],
+        task:'Describe one adaptation that totora enables and one climate feature of high-altitude lakes.',
+        check:{kind:'sa', key:['totora','reed','island','boat','thatch','uv','thin air','cold nights','frost','diurnal']},
+        award:'Totora reeds enable floating islands/boats; high altitude brings strong UV and large day–night temperature swings.'
+      },
+      { id:'head', icon:'🌧️', name:'Amazon Headwaters (Cloud Forest)', blurb:'Talk to a biogeographer; read a fog note and a watershed map.',
+        sources:[
+          {sid:'dlg_forest', kind:'dialogue', title:'Talk to Dr. Salas (biogeographer)', who:'Dr. Tomás Salas', nodes:{
+            start:{ text:'Moist air climbs the east Andes, cools, and condenses—forests here drink clouds.', choices:[
+              {label:'Why so wet on this side?', next:'wet'},
+              {label:'How does this feed the Amazon?', next:'feed'},
+              {label:'Thanks.', next:'end'}
+            ]},
+            wet:{ text:'<mark data-eid="ev_orographic2">Orographic</mark> lift. Trade winds push humid air upslope; it rains and drips from leaves.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            feed:{ text:'Countless streams join to form the <mark data-eid="ev_ucayali">Ucayali</mark> and <mark data-eid="ev_maranon">Marañón</mark>—headwaters of the Amazon.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Watch your footing—the mossy steps hide water.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'note_fog', kind:'plaque', title:'Note — Cloud Drip', html:`
+            <div class="artifact">
+              <b>FOG DRIP</b><br>
+              Leaves and moss capture cloud moisture, adding to rainfall and streamflow.
+            </div>`},
+          {sid:'map_heads', kind:'artifact', title:'Map — Ucayali & Marañón', html:`
+            <div class="artifact">
+              <b>HEADWATERS</b><br>
+              Andean streams join as Ucayali & Marañón, which meet to become the Amazon.
+            </div>`}
+        ],
+        task:'Explain why cloud forests are wet and name two rivers that form the Amazon in Peru.',
+        check:{kind:'sa', key:['orographic','trade winds','upslope','fog drip','ucayali','marañón','maranon','headwaters']},
+        award:'Orographic lift + fog drip keep forests wet; Ucayali and Marañón form the Amazon.'
+      },
+      { id:'coast', icon:'🌬️', name:'Humboldt Coast (Lima/Paracas)', blurb:'Meet a port forecaster; read a current note and a coastal desert card.',
+        sources:[
+          {sid:'dlg_port', kind:'dialogue', title:'Talk to Julio (port forecaster)', who:'Julio Rivas', nodes:{
+            start:{ text:'A cold current climbs our coast. Air above stays cool and stable—clouds, drizzle, little real rain.', choices:[
+              {label:'What is this current and what does it do?', next:'current'},
+              {label:'So why is the coast a desert?', next:'desert'},
+              {label:'Understood.', next:'end'}
+            ]},
+            current:{ text:'The <mark data-eid="ev_humboldt">Humboldt (Peru) Current</mark> brings cold water and nutrients—good fisheries, cool air.', evidence:true, choices:[{label:'Back', next:'start'}]},
+            desert:{ text:'Stable air suppresses rising motion; Andes block Amazon moisture. Result: a coastal desert.', choices:[{label:'Back', next:'start'}]},
+            end:{ text:'Stratus again tomorrow—pack a jacket.', choices:[{label:'Leave', next:'_close'}]}
+          },
+          {sid:'note_current', kind:'plaque', title:'Note — Cold Current', html:`
+            <div class="artifact">
+              <b>HUMBOLDT</b><br>
+              Cold, nutrient-rich upwelling chills the coast; supports fisheries but limits rainfall.
+            </div>`},
+          {sid:'card_desert', kind:'artifact', title:'Card — Coastal Desert', html:`
+            <div class="artifact">
+              <b>COASTAL DESERT</b><br>
+              Cool marine layer + rain shadow = fog/drizzle but scarce rain; dunes and dry valleys dominate.
+            </div>`}
+        ],
+        task:'Name the ocean current along Peru’s coast and explain why much of the coast is desert.',
+        check:{kind:'sa', key:['humboldt','peru current','cold current','upwelling','stable air','rain shadow','andes','desert']},
+        award:'Humboldt (Peru) Current cools and stabilizes air; Andes rain shadow blocks Amazon moisture → coastal desert.'
+      }
+    ],
+    synthesis:{
+      prompt:'Connect Peru’s three worlds: cold-current coast, Andean slopes & terraces, and the cloud-forest headwaters.',
+      mc:{ q:'Which combination best explains Peru’s desert coast and wet eastern slopes?',
+          options:[
+            'A cold Humboldt Current stabilizes coastal air (little rain) while orographic lift wrings moisture on the east Andes',
+            'Warm currents cause heavy coastal rain; mountains create deserts on both sides',
+            'Tectonic rifts create deserts and rainforests regardless of winds or currents',
+            'Equatorial location alone determines both dry and wet zones'
+          ],
+          a:'A cold Humboldt Current stabilizes coastal air (little rain) while orographic lift wrings moisture on the east Andes'
+      },
+      riddle:{ text:'“On a high plain where sun burns by day and frost bites by night, the great lake shines. Name it.”', answer:['titicaca'] },
+      reward:'FEATHER — Highlands Shard (Peru)'
+    }
+  },
+};
+
+function enterCountry(id){
+  const hub = HUBS[id];
+  if(!hub){ alert('Unknown country'); return; }
+  stopAirfieldAnim();
+  state.country = id; state.view.mode='hub';
+  state.tu = state.featherCountries[id] ? 0 : hub.tu;
+  if(!state.evidence[id]) state.evidence[id] = [];
+  logLine(`✈️ Wheels up. Arrived in ${hub.name.replace('(Coming Next)','').trim()}. TU: ${state.tu}.`);
+  renderCountryHub();
+}
+function backToAirfield(){ stopAllCountryAnims(); state.view.mode='airfield'; state.country=null; state.view.location=null; renderAirfield(); }
+
+function renderCountryHub(){
+  const hub = HUBS[state.country];
+  if(hub.stub){
+    viewTitle.textContent = hub.name;
+    view.innerHTML = `
+      <div class="card"><div><span class="tag">Prototype Note</span></div>
+        <p>This country hub is queued for the next build cycle. Your current build includes the <b>Argentina</b> and <b>Chile</b> pixel hubs. Click below to return to the airfield.</p>
+        <div class="btn-row"><button onclick="backToAirfield()">Back to Airfield</button></div>
+      </div>`;
+    return;
+  }
+  viewTitle.textContent = `${hub.name} — Country Hub`;
+  const evCt = (state.evidence[hub.id]||[]).length;
+  const shardCard = (state.shardSites[hub.id] && !state.featherCountries[hub.id]) ? `
+    <div class=\"card\">
+      <div><span class=\"tag\">Shard Site Unlocked</span></div>
+      <p class=\"small\">Your host points you to a hidden cache. Secure the shard before your rivals do.</p>
+      <div class=\"btn-row\"><button onclick=\"claimShard('${hub.id}')\">Claim the Shard</button></div>
+    </div>` : '';
+  view.innerHTML = `
+    <div class="scene">
+      <canvas id="sceneCanvas" class="pixel" width="${hub.scene.w}" height="${hub.scene.h}"></canvas>
+      <div class="scene-caption small">${hub.scene.caption}</div>
+      <div id="sceneTip" class="tooltip"></div>
+    </div>
+    <div class="card">
+      <h2>${hub.name}</h2>
+      <p class="small">${hub.intro}</p>${hub.host ? \'<div class="btn-row"><button onclick="openHost()">Talk to Host</button></div>\' : \'\'}
+      <div class="card">
+        <div><span class="tag">Choose a Location</span></div>
+        <div class="loc-list">
+          ${hub.locations.map(loc => `
+            <div class="loc">
+              <div class="icon">${loc.icon}</div>
+              <div>
+                <div><b>${loc.name}</b></div>
+                <div class="meta">${loc.blurb}</div>
+              </div>
+              <button style="margin-left:auto" onclick="goLocation('${loc.id}')">Go</button>
+            </div>`).join('')}
+        </div>
+        <div class="small">Each visit costs <b>1 TU</b> when you submit an answer. Reading sources is free. Gather <b>2+ evidence</b> to unlock Synthesis.</div>
+        <div class="btn-row">
+          <button onclick="openSynthesis()" ${(evCt)>=2 ? '' : 'disabled'}>🪶 Attempt Synthesis</button>
+          <button onclick="backToAirfield()">↩️ Airfield</button>
+        </div>
+      </div>
+    ${shardCard}
+    </div>`;
+  // route to the right pixel scene + hotspots
+  if(state.country==='argentina'){ initArgentinaScene(); startArgentinaAnim(); setupArgentinaHotspots(); }
+  else if(state.country==='chile'){ initChileScene(); startChileAnim(); setupChileHotspots(); }
+  else if(state.country==='brazil'){ initBrazilScene(); startBrazilAnim(); setupBrazilHotspots(); }
+  else if(state.country==='colombia'){ initColombiaScene(); startColombiaAnim(); setupColombiaHotspots(); }
+  else if(state.country==='peru'){ initPeruScene(); startPeruAnim(); setupPeruHotspots(); }
+  renderHud();
+}
+
+function goLocation(id){ stopAllCountryAnims(); state.view.mode='location'; state.view.location=id; renderLocation(); }
+function renderLocation(){
+  const hub = HUBS[state.country];
+  const loc = hub.locations.find(l=>l.id===state.view.location);
+  viewTitle.textContent = `${hub.name} — ${loc.name}`;
+  const srcCards = (loc.sources||[]).map(s=>`<div class="src-card" onclick="openSource('${hub.id}','${loc.id}','${s.sid}')"><div><b>${s.title}</b></div><div class="small">${s.kind}</div></div>`).join('');
+  view.innerHTML = `
+    <div class="loc-title"><span class="backlink" onclick="state.view.mode='hub'; state.view.location=null; renderCountryHub();">← Back to Country Hub</span><h2>${loc.icon} ${loc.name}</h2></div>
+    <div class="card">
+      <div><span class="tag">Sources</span></div>
+      <div class="src-list">${srcCards || '<div class="small">No sources.</div>'}</div>
+      <div class="small">Click a source to read it. <span class="badge-sm">Tip: Click <b>highlighted phrases</b></span> in articles/plaques to save evidence.</div>
+    </div>
+    <div class="card">
+      <div><span class="tag">Question</span></div>
+      <div class="q">
+        <div class="small"><b>Task:</b> ${loc.task}</div>
+        <input id="ans-${loc.id}" placeholder="Answer using information you gathered…" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #243655;background:#0f223a;color:var(--ink)">
+        <div class="btn-row">
+          <button onclick="investigate('${loc.id}')">Submit (−1 TU)</button>
+          <button onclick="state.view.mode='hub'; state.view.location=null; renderCountryHub();">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+  // draw background frame once
+  if(state.country==='argentina') drawArgentinaFrame();
+  if(state.country==='chile') drawChileFrame();
+
+  /* PIXEL HERO INJECT */
+  try{
+    const firstCard = view.querySelector('.card');
+    if(firstCard && !document.getElementById('loc-sprite')){
+      const hero = document.createElement('div');
+      hero.className = 'loc-hero card';
+      hero.innerHTML = '<div class="pixel-wrap"><canvas id="loc-sprite" width="96" height="64" class="pixel"></canvas></div><div class="small">'+ (loc.blurb||'') +'</div>';
+      view.insertBefore(hero, firstCard);
+    }
+    const spr = document.getElementById('loc-sprite');
+    if(spr) drawLocationSprite(state.country, loc.id, spr);
+  }catch(e){ console.warn('loc sprite inject', e); }
+}
+
+function openSynthesis(){ stopAllCountryAnims(); state.view.mode='synthesis'; renderSynthesis(); }
+function renderSynthesis(){
+  const hub = HUBS[state.country];
+  const got = state.evidence[hub.id]||[];
+  viewTitle.textContent = `${hub.name} — Synthesis`;
+  view.innerHTML = `
+    <div class="loc-title"><span class="backlink" onclick="state.view.mode='hub'; renderCountryHub();">← Back to Country Hub</span><h2>🧩 Synthesis</h2></div>
+    <div class="card">
+      <p><b>${hub.synthesis.prompt}</b></p>
+      <p class=\"small\">Use your saved evidence (paperclip) and notes from NPCs. Short, clear explanations score best. If you’re stuck, revisit locations.</p>
+      <div class="q">
+        <div class="small">MC Check:</div>
+        ${renderMC('syn-mc', hub.synthesis.mc.options, hub.synthesis.mc.a)}
+        <div style="margin-top:8px" class="small">Riddle (type one keyword):</div>
+        <input id="syn-riddle" placeholder="${hub.synthesis.riddle.text}" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #243655;background:#0f223a;color:var(--ink)">
+        <div class="btn-row"><button onclick="attemptSynthesis()">🔓 Submit</button><button onclick="state.view.mode='hub'; renderCountryHub();">Cancel</button></div>
+        <div class="small">Requires 2+ evidence items (you have <b>${got.length}</b> locations).</div>
+      </div>
+    </div>`;
+  // background
+  if(state.country==='argentina') drawArgentinaFrame();
+  if(state.country==='chile') drawChileFrame();
+}
+
+function renderMC(id, options){ return `<div>${options.map(op=>`<label style="display:block;margin:2px 0"><input type="radio" name="${id}" value="${op}"> ${op}</label>`).join('')}</div>`; }
+
+// ------------- Evidence helpers -------------
+function collectEvidence(eid, text, locId, countryId){
+  if(!eid) return;
+  if(!state.evidenceDetails.find(e=>e.id===eid)){
+    state.evidenceDetails.unshift({id:eid, text, loc:locId, country:countryId});
+    state.xp += 1;
+    addJournal(`Evidence: ${text}`);
+    logLine(`📎 Saved evidence from ${titleFor(countryId,locId)}.`);
+    if(!state.evidence[countryId]) state.evidence[countryId]=[];
+    if(!state.evidence[countryId].includes(locId)) state.evidence[countryId].push(locId);
+    renderHud();
+  }
+}
+
+function openSource(countryId, locId, sid){
+  const hub = HUBS[countryId]; if(!hub) return;
+  const loc = hub.locations.find(l=>l.id===locId); if(!loc) return;
+  const src = (loc.sources||[]).find(s=>s.sid===sid); if(!src) return;
+  let html='';
+  if(src.kind==='dialogue'){
+    html = renderDialogue(src, countryId, locId);
+  }else if(src.kind==='clipping' || src.kind==='plaque' || src.kind==='artifact'){
+    html = renderClipping(src, countryId, locId);
+  }else{
+    html = `<div class="small">Unknown source type.</div>`;
+  }
+  modalTitle.textContent = src.title;
+  modalContent.innerHTML = html;
+  modalContent.querySelectorAll('mark[data-eid]').forEach(mk=>{
+    mk.addEventListener('click', ()=>{
+      collectEvidence(mk.getAttribute('data-eid'), mk.getAttribute('data-evi') || mk.textContent, locId, countryId);
+      mk.style.background = '#2b7a4b';
+    });
+  });
+  showModal();
+}
+
+// Dialogue engine
+function renderDialogue(src, countryId, locId){
+  const boxId = `dlg-${countryId}-${locId}-${src.sid}`;
+  setTimeout(()=>{ const box = document.getElementById(boxId); if(box){ box.dataset.node='start'; __drawNode(box, src, countryId, locId, boxId); } },0);
+  return `<div id="${boxId}" data-src="${src.sid}"></div>`;
+}
+function __drawNode(box, src, countryId, locId, boxId){
+  const nodeId = box.dataset.node || 'start';
+  const node = src.nodes[nodeId] || src.nodes.start;
+  let inner = `<div class="dialogue">`;
+  if(src.who) inner += `<div class="badge-sm">${src.who}</div>`;
+  inner += `<div class="dlg-row"><canvas id="${boxId}-portrait" width="48" height="48" class="pixel portrait"></canvas><div class="bubble">${node.text}</div></div>`;
+  /* PORTRAIT INJECT */
+  if(node.evidence){
+    inner += `<div class="small">Save this?</div><div class="btn-row"><button onclick="collectEvidence('${node.evidence.id}','${node.evidence.text.replace(/'/g,"&#39;")}','${locId}','${countryId}')">📎 Save as Evidence</button></div>`;
+  }
+  if(node.choices && node.choices.length){
+    inner += `<div class="choice-row">` + node.choices.map(ch=>{
+      const lab = ch.label || '…';
+      return `<button class="choice" onclick="__dlgGoto2('${boxId}','${ch.next||'end'}')">${lab}</button>`;
+    }).join('') + `</div>`;
+  }
+  inner += `</div>`;
+  box.innerHTML = inner;
+  try{ const c=document.getElementById(boxId+'-portrait'); if(c) drawPortrait(countryId, src.who||'NPC', c); }catch(e){ console.warn('portrait', e); }
+}
+window.__dlgGoto2 = (boxId, next)=>{
+  const box = document.getElementById(boxId); if(!box) return;
+  if(next==='_close'){ closeModal(); return; }
+  box.dataset.node = next || 'end';
+  // redraw
+  const countryId = boxId.split('-')[1], locId = boxId.split('-')[2];
+  const srcId = box.getAttribute('data-src');
+  // find src
+  let src=null;
+  const hub = HUBS[countryId]; if(hub){ const loc = hub.locations.find(l=>l.id===locId); src = loc?.sources.find(s=>s.sid===srcId); }
+  if(src){ __drawNode(box, src, countryId, locId, boxId); }
+};
+
+function renderClipping(src, countryId, locId){
+  const wrap = document.createElement('div');
+  wrap.innerHTML = src.html || '<div class="small">Empty.</div>';
+  return wrap.innerHTML;
+}
+
+function investigate(id){
+  const hub = HUBS[state.country];
+  const loc = hub.locations.find(l=>l.id===id);
+  const el = document.getElementById('ans-'+id);
+  const val = (el?.value || '').toLowerCase();
+  if(state.tu<=0){ alert('No TU left. Reading sources is free, but investigations need TU.'); return; }
+  state.tu -= 1;
+  const ok = loc.check.key.some(k => val.includes(k));
+  if(ok){
+    state.xp += 2; logLine(`✅ Evidence accepted at ${loc.name}.`); addJournal(loc.award);
+    if(!state.evidence[hub.id].includes(id)) state.evidence[hub.id].push(id);
+  }else{
+    state.rival += 1; logLine(`❌ Incomplete answer at ${loc.name}. Rival advances.`); checkLose();
+  }
+  state.view.mode='hub'; state.view.location=null; renderCountryHub(); renderHud();
+}
+
+function attemptSynthesis(){
+  const hub = HUBS[state.country];
+  const got = state.evidence[hub.id]||[];
+  if(got.length<2){ alert('You need at least 2 evidence locations.'); return; }
+  const mcSel = document.querySelector('input[name="syn-mc"]:checked');
+  const mcOK = !!mcSel && (mcSel.value===hub.synthesis.mc.a);
+  const rid = (document.getElementById('syn-riddle').value||'').toLowerCase().trim();
+  const ridOK = hub.synthesis.riddle.answer.some(a => rid.includes(a));
+  if(mcOK && ridOK){
+    state.xp += 3;
+    unlockShardSite(hub.id);
+    logLine('✅ Synthesis complete. Your host whispers a location…');
+    state.view.mode='hub'; renderCountryHub();
+  }else{
+    state.rival += 2; if(state.tu>0) state.tu -= 1;
+    logLine('⚠️ Synthesis attempt failed. Rival surges (+2) and you lose 1 TU.');
+    checkLose();
+    state.view.mode='hub'; renderCountryHub();
+  }
+  renderHud();
+}
+
+function unlockShardSite(country){
+  state.shardSites[country] = true;
+  addJournal(`Your host reveals a hidden cache in ${HUBS[country].name}.`);
+}
+function claimShard(country){
+  if(state.featherCountries[country]) return;
+  state.featherCountries[country] = true;
+  state.feathers = Object.keys(state.featherCountries).length;
+  logLine(`🪶 ${HUBS[country].synthesis.reward}`);
+  state.shardSites[country] = false;
+  if(state.feathers >= 5){ state.view.mode='final'; renderFinal(); }
+  else { renderCountryHub(); renderHud(); }
+}
+
+
+// ======= PIXEL SCENES =======
+// Argentina (from v9/v8)
+function initArgentinaScene(){
+  ARG.cattle = Array.from({length:5}, (_,i)=> ({ x: 30 + i*18, dir: (i%2?1:-1) }));
+  ARG.chickens = Array.from({length:3}, (_,i)=> ({ x: 120 + i*10, y: 132 + (i%2), peck: i%2, dir: i%2?1:-1 }));
+  ARG.farWind = 0;
+}
+function startArgentinaAnim(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  if(ARG.animId) cancelAnimationFrame(ARG.animId);
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    ARG.t += dt;
+    drawArgentinaFrame();
+    ARG.animId = requestAnimationFrame(loop);
+  };
+  ARG.animId = requestAnimationFrame(loop);
+}
+function stopArgentinaAnim(){ if(ARG.animId){ cancelAnimationFrame(ARG.animId); ARG.animId=null; } }
+
+function drawArgentinaFrame(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas'); oc.width = ARG.base.w; oc.height = ARG.base.h;
+  const px = oc.getContext('2d'); [px,ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+
+  const W = oc.width, H=oc.height, t = ARG.t;
+
+  // Sky bands (windy pampas dusk)
+  for(let y=0;y<Math.floor(H*0.55);y++){
+    const k = 20+Math.floor(20*Math.sin((y+t*0.002)));
+    px.fillStyle = `rgb(${6+k},${14+k},${32+k})`; px.fillRect(0,y,W,1);
+  }
+
+  // Distant Sierras (parallax layers with dithering)
+  PAT.fillRectDither(px, 0, Math.floor(H*0.42), W, 30, '#173457', 0.6, 3);
+  PAT.fillRectDither(px, 0, Math.floor(H*0.50), W, 16, '#1a3d66', 0.6, 2);
+
+  // Windmill (rotating blades)
+  const mx = Math.floor(W*0.18), my = Math.floor(H*0.58);
+  px.fillStyle='#5d6e86'; px.fillRect(mx-1, my-18, 2, 18);
+  const ang = (t*0.006)% (Math.PI*2);
+  for(let k=0;k<4;k++){
+    const a = ang + k*Math.PI/2;
+    const x2 = Math.floor(mx + Math.cos(a)*8);
+    const y2 = Math.floor(my-18 + Math.sin(a)*8);
+    px.fillStyle='#9fb6cf'; px.fillRect(x2-1,y2-1, 2,2);
+  }
+
+  // Grass waves (three parallax rows)
+  const baseY = Math.floor(H*0.62);
+  for(let row=0; row<3; row++){
+    const yy = baseY + row*6;
+    const col = ['#0f2a28','#12322e','#163a34'][row];
+    for(let x=0;x<W;x+=2){
+      const h = 2 + (x%3===0 ? 1:0) + Math.floor(1*Math.sin((t*0.01)+(x*0.2)+row));
+      px.fillStyle=col; px.fillRect(x, yy, 2, h);
+    }
+  }
+
+  // Cattle sprites drifting
+  if(!ARG.cattle || ARG.cattle.length===0){
+    ARG.cattle = Array.from({length:4}, (_,i)=>({x: 40+i*30, y: baseY+8+(i%2)*3, dir: i%2?1:-1 }));
+  }
+  ARG.cattle.forEach((m,i)=>{
+    m.x += 0.08*m.dir; if(m.x<4||m.x>W-8) m.dir*=-1;
+    const bx = Math.floor(m.x), by = Math.floor(m.y);
+    // tiny sprite: body + head
+    px.fillStyle='#372b20'; px.fillRect(bx,by,6,2);
+    px.fillStyle='#2a2017'; px.fillRect(bx+(m.dir>0?6:-2),by,2,2);
+  });
+
+  // Foreground fence
+  for(let i=0;i<W;i+=20){ px.fillStyle='#4a3a26'; px.fillRect(i, baseY+14, 2, 10); }
+  px.fillStyle='#5c472f'; px.fillRect(0, baseY+18, W, 2);
+
+  // Blit upscale
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+
+  const moonX=18, moonY=14; px.fillStyle='#cfe2ff'; px.fillRect(moonX, moonY, 3,3); px.fillRect(moonX+1, moonY-1, 1,1); px.fillStyle='#0a1730'; px.fillRect(moonX+2, moonY, 1,1);
+  for(let i=0;i<42;i++){ const sx=(i*23)%W, sy=(i*7)%Math.floor(H*0.45); const tw=((i*37 + Math.floor(ARG.t/120))%8)<2; px.fillStyle=tw? '#cfe2ff' : '#7b8fb4'; px.fillRect(sx, sy, 1,1); }
+
+  // mountains + ground
+  drawMount(px, H*0.62, '#0b1d39', 6, 22);
+  drawMount(px, H*0.68, '#0c2142', 8, 28);
+  const groundY = Math.floor(H*0.68);
+  px.fillStyle='#193155'; px.fillRect(0,groundY,W,H-groundY);
+
+  // distant windmill
+  ARG.farWind = (ARG.farWind + 0.6) % 360;
+  const fwx=Math.floor(W*0.78), fwy=Math.floor(H*0.55);
+  px.fillStyle='#1f345c'; px.fillRect(fwx, fwy, 2, 20);
+  const fframe = Math.floor((ARG.t/220)%4); drawWindBlades(px, fwx+1, fwy, fframe);
+
+  // grass sway
+  for(let x=0;x<W;x+=3){ const h = 1 + Math.floor(2*Math.sin((x+ARG.t*0.1)*0.2)); px.fillStyle='#163055'; px.fillRect(x, H-2-h, 1, h); }
+
+  // ranch house + glow
+  const rx=Math.floor(W*0.26), ry=Math.floor(H*0.62), rw=58, rh=30;
+  px.fillStyle='#223a63'; px.fillRect(rx,ry,rw,rh);
+  px.fillStyle='#2a4a7a'; px.fillRect(rx-2,ry-6,rw+4,6);
+  px.fillStyle='#182b4f'; px.fillRect(rx+6,ry+12,12,18);
+  const glowOn = (Math.floor(ARG.t/150)%2===0);
+  const winCol= glowOn? '#ffe7a3' : '#ffd166'; px.fillStyle=winCol; px.fillRect(rx+30,ry+8,14,8);
+  px.fillStyle= glowOn? '#5e4a17' : '#4d3a0f'; px.fillRect(rx+28,ry+16,18,2); px.fillRect(rx+26,ry+18,22,1);
+
+  // trough shimmer
+  const trX = rx-24, trY = ry+rh-8;
+  px.fillStyle='#213a63'; px.fillRect(trX, trY, 18, 5);
+  const sh = (Math.floor(ARG.t/120)%4);
+  px.fillStyle= sh%2? '#7aa2d8' : '#9fbceb'; px.fillRect(trX+2, trY+2, 14, 1);
+
+  // campfire
+  const fireX = rx+rw+10, fireY = ry+rh-4;
+  const fcol = (Math.floor(ARG.t/110)%2===0) ? '#ff9f43' : '#ffd166';
+  px.fillStyle=fcol; px.fillRect(fireX, fireY, 2,2); px.fillRect(fireX+1, fireY-1, 2,1);
+  px.fillStyle= '#4d3a0f'; px.fillRect(fireX-2, fireY+2, 6,1);
+
+  // corral + shadows
+  px.fillStyle='#29426d'; for(let x=rx+rw+14;x<rx+rw+74;x+=3){ px.fillRect(x,ry+2,1,rh-4); }
+  px.fillRect(rx+rw+14, ry+8, 60,1); px.fillRect(rx+rw+14, ry+18, 60,1); px.fillRect(rx+rw+14, ry+rh-6, 60,1);
+  px.fillStyle='rgba(10,20,35,0.5)'; px.fillRect(rx+rw+14, ry+rh-5, 60,1);
+
+  // cattle
+  ARG.cattle.forEach((c0,i)=>{
+    c0.x += 0.15 * c0.dir;
+    if(c0.x < rx+rw+16 || c0.x > rx+rw+70){ c0.dir *= -1; }
+    const cy = ry+rh-8 - (i%2);
+    px.fillStyle = '#233a66'; px.fillRect(Math.floor(c0.x), cy, 2,1);
+  });
+
+  // chickens
+  ARG.chickens.forEach((ch,i)=>{
+    if(Math.randomom()<0.02) ch.peck = 1 - ch.peck;
+    ch.x += 0.05*ch.dir;
+    if(ch.x < rx-8 || ch.x > rx+rw-4) ch.dir *= -1;
+    const yy = ry+rh-6 + (ch.peck?1:0);
+    px.fillStyle='#25436f'; px.fillRect(Math.floor(ch.x), yy, 1,1); px.fillRect(Math.floor(ch.x)+1, yy, 1,1);
+  });
+
+  // horse + near windmill
+  const hx=rx+rw+40, hy=ry+18 + (Math.floor(ARG.t/240)%2);
+  px.fillStyle='#233a66'; px.fillRect(hx-6,hy-6,12,6); px.fillRect(hx-2,hy-12,4,6); px.fillRect(hx-5,hy-14,6,3); px.fillRect(hx-5,hy,2,6); px.fillRect(hx+3,hy,2,6);
+  const wx=rx-30, wy=ry-4; px.fillStyle='#23406d'; px.fillRect(wx,wy,3,34); px.fillRect(wx-6,wy,15,2);
+  const frame = Math.floor((ARG.t/140)%4); drawWindBlades(px, wx+1, wy, frame);
+
+  // fireflies
+  for(let i=0;i<10;i++){ const fx = (i*17 + Math.floor(ARG.t/20))%W; const fy = H-8 - (i%3); const on = (i + Math.floor(ARG.t/120))%6<2; px.fillStyle = on? '#ffd166' : '#7a6a3c'; px.fillRect(fx, fy, 1,1); }
+
+  // draw
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0, 0, c.width, c.height);
+
+  // hotspot pins + labels
+  const doneList = state.evidence.argentina || [];
+  HUBS.argentina.hotspots.forEach(h=>{
+    const done = doneList.includes(h.id);
+    const hover = ARG.hoverId===h.id;
+    drawPin(ctx, h.x, h.y, ARG.t, {done, hover, kind:'hub'});
+    const offX = h.id==='ranch'? 18 : (h.id==='pass'? -6 : (h.id==='survey'? -14 : 10));
+    const offY = h.id==='pass'? -18 : -20;
+    drawLabel(ctx, h.x+offX, h.y+offY, h.label);
+  });
+
+  // campfire glow
+  (function(){
+    const scaleX = c.width / oc.width, scaleY = c.height / oc.height;
+    const gx = (rx+rw+10)*scaleX, gy = (ry+rh-4)*scaleY;
+    const r0 = 24, r1 = 60;
+    const g = ctx.createRadialGradient(gx,gy, r0, gx,gy, r1);
+    g.addColorStop(0, 'rgba(255,180,80,0.18)');
+    g.addColorStop(1, 'rgba(255,180,80,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(gx,gy,r1,0,Math.PI*2); ctx.fill();
+  })();
+}
+
+function setupArgentinaHotspots(){
+  const hub = HUBS.argentina;
+  const c = document.getElementById('sceneCanvas'); const tip = document.getElementById('sceneTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearestHotspot(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of hub.hotspots){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    ARG.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(ARG.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    if(hotspot && dist <= hotspot.r){ goLocation(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ ARG.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+// Chile scene
+function initChileScene(){
+  // starfield with a faint Milky Way band
+  CHI.stars = Array.from({length:60}, (_,i)=>({ x:(i*23)%CHI.base.w, y:(i*7)%Math.floor(CHI.base.h*0.5), tw:i%5 }));
+  CHI.fog = 0;
+}
+function startChileAnim(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  if(CHI.animId) cancelAnimationFrame(CHI.animId);
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    CHI.t += dt;
+    drawChileFrame();
+    CHI.animId = requestAnimationFrame(loop);
+  };
+  CHI.animId = requestAnimationFrame(loop);
+}
+function stopChileAnim(){ if(CHI.animId){ cancelAnimationFrame(CHI.animId); CHI.animId=null; } }
+
+
+function drawChileFrame(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas'); oc.width = CHI.base.w; oc.height = CHI.base.h;
+  const px = oc.getContext('2d'); [px,ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+
+  const W = oc.width, H=oc.height, t = CHI.t;
+
+  // High desert sky with gradient
+  for(let y=0;y<Math.floor(H*0.6);y++){
+    const k = 14+Math.floor(16*Math.sin((y+t*0.002)));
+    px.fillStyle = `rgb(${8+k},${16+k},${28+k})`; px.fillRect(0,y,W,1);
+  }
+
+  // Far cordillera silhouettes
+  PAT.fillRectDither(px, 0, Math.floor(H*0.46), W, 10, '#0f2240', 0.5, 1);
+  PAT.fillRectDither(px, 0, Math.floor(H*0.50), W, 14, '#173056', 0.55, 2);
+
+  // Snow caps + observatory domes
+  for(let i=0;i<6;i++){
+    const x = 20+i*35, y = Math.floor(H*0.46) - (i%2? 4:2);
+    PAT.tri(px, x, y, x+10, y+6, x-10, y+6, '#143055');
+    px.fillStyle='#cfe2ff'; px.fillRect(x-2,y+2,4,1);
+    if(i%3===0){ px.fillStyle='#d9e7ff'; px.fillRect(x-1, y+6, 2,2); px.fillStyle='#9fb6cf'; px.fillRect(x-1, y+8, 2,1); }
+  }
+
+  // Dry foreground with patterned dunes
+  const baseY = Math.floor(H*0.62);
+  PAT.fillRectDither(px, 0, baseY, W, H-baseY, '#2a1f16', 0.5, 2);
+  for(let i=0;i<W;i+=8){
+    const hh = Math.floor(2+2*Math.sin((i+t*0.02)*0.3));
+    px.fillStyle='#3a2a1d'; px.fillRect(i, baseY-2, 8, hh);
+  }
+
+  // Twinkling stars faintly
+  if(!CHI.stars || CHI.stars.length===0){
+    CHI.stars = Array.from({length:30}, ()=>({x: Math.floor(Math.randomom()*W), y: Math.floor(Math.randomom()*H*0.4), p: Math.randomom()}));
+  }
+  CHI.stars.forEach((s, i)=>{
+    if(((t>>5)+i)%7===0){ px.fillStyle='#cfe2ff'; px.fillRect(s.x, s.y, 1,1); }
+  });
+
+  // Thin fog layer in valley
+  CHI.fog = 0.3 + 0.2*Math.sin(t*0.0015);
+  PAT.fillRectDither(px, 0, baseY-6, W, 6, '#8aa6c6', 0.15+CHI.fog*0.2, 1);
+
+  // Blit
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+
+  // Milky Way stripe
+  for(let x=0;x<W;x++){ const yy = Math.floor(10+Math.sin((x+CHI.t*0.03)/10)*3); px.fillStyle = (x%3===0)?'#aabbe0':'#7f93c7'; px.fillRect(x, yy, 1,1); }
+  // stars
+  CHI.stars.forEach((s,i)=>{ const tw = ((i*37 + Math.floor(CHI.t/120))%8)<2; px.fillStyle = tw? '#cfe2ff' : '#7b8fb4'; px.fillRect(s.x, s.y, 1,1); });
+
+  // far Andes silhouette
+  drawMount(px, H*0.60, '#0b1d39', 5, 24);
+  drawMount(px, H*0.66, '#0c2142', 7, 30);
+
+  // dune ridges
+  const duneY = Math.floor(H*0.74);
+  px.fillStyle = '#1c2f52'; px.fillRect(0, duneY, W, H-duneY);
+  for(let x=0;x<W;x++){ const y = duneY - Math.floor(2+Math.sin(x/8)*2 + Math.sin((x+CHI.t*0.05)/15)*1); px.fillStyle='#162a48'; px.fillRect(x, y, 1, H-y); }
+
+  // observatory dome & telescope
+  const dx = Math.floor(W*0.62), dy = duneY-24, dw=30, dh=22;
+  px.fillStyle='#223a63'; px.fillRect(dx-2, dy-6, dw+4, 6);
+  px.fillStyle='#2a4a7a'; px.fillRect(dx, dy, dw, dh);
+  // dome slit
+  const slit = Math.floor((CHI.t/200)%6);
+  px.fillStyle='#0e1c33'; px.fillRect(dx+12, dy-6, 6, dh+6);
+  // telescope tube rotates slightly
+  const ang = Math.sin(CHI.t*0.002)*2;
+  const tx = dx+15, ty = dy-2;
+  px.fillStyle='#9fb0c9'; px.fillRect(tx-6, ty-6, 12,2);
+  px.fillRect(tx-1, ty-8, 2,8);
+
+  // side dome
+  px.fillStyle='#29426d'; px.fillRect(dx-26, dy+2, 12, 10);
+  px.fillStyle='#223a63'; px.fillRect(dx-28, dy-4, 16, 4);
+
+  // small control hut windows
+  px.fillStyle= (Math.floor(CHI.t/150)%2===0)? '#ffe7a3' : '#ffd166'; px.fillRect(dx+dw+4, dy+6, 8,4);
+
+  // coastal fog bank (camanchaca) on far left
+  CHI.fog = (CHI.fog + 0.3) % 200;
+  for(let i=0;i<30;i++){
+    const fx = 2 + (i*3)%W, fy = Math.floor(H*0.70) + Math.floor(Math.sin((i+CHI.fog)/10)*2);
+    px.fillStyle = '#0e1a33'; px.fillRect(fx, fy, 2,2);
+  }
+
+  // draw
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0, 0, c.width, c.height);
+
+  // hotspot pins + labels
+  const doneList = state.evidence.chile || [];
+  HUBS.chile.hotspots.forEach(h=>{
+    const done = doneList.includes(h.id);
+    const hover = CHI.hoverId===h.id;
+    drawPin(ctx, h.x, h.y, CHI.t, {done, hover, kind:'hub'});
+    let offX = 12, offY = -20;
+    if(h.id==='observatory'){ offX = 16; offY = -24; }
+    if(h.id==='port'){ offX = 12; offY = -16; }
+    if(h.id==='mining'){ offX = 14; offY = -18; }
+    if(h.id==='pass'){ offX = -6; offY = -22; }
+    drawLabel(ctx, h.x+offX, h.y+offY, h.label);
+  });
+}
+
+function setupChileHotspots(){
+  const hub = HUBS.chile;
+  const c = document.getElementById('sceneCanvas'); const tip = document.getElementById('sceneTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearestHotspot(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of hub.hotspots){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    CHI.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(CHI.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    if(hotspot && dist <= hotspot.r){ goLocation(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ CHI.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+
+function initBrazilScene(){
+  BRA.birds = Array.from({length:4}, (_,i)=> ({ x: 30 + i*40, y: 22 + (i%2)*6, vx: 0.3 + 0.05*i }));
+  BRA.fish = Array.from({length:6}, (_,i)=> ({ x: 20 + i*30, y: 120 + (i%3)*6, vx: 0.2 + 0.03*i }));
+  BRA.spray = 0;
+}
+function startBrazilAnim(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  if(BRA.animId) cancelAnimationFrame(BRA.animId);
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    BRA.t += dt;
+    drawBrazilFrame();
+    BRA.animId = requestAnimationFrame(loop);
+  };
+  BRA.animId = requestAnimationFrame(loop);
+}
+function stopBrazilAnim(){ if(BRA.animId){ cancelAnimationFrame(BRA.animId); BRA.animId=null; } }
+
+function drawBrazilFrame(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas'); oc.width = BRA.base.w; oc.height = BRA.base.h;
+  const px = oc.getContext('2d'); [px,ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+
+  const W = oc.width, H=oc.height, t = BRA.t;
+
+  // Dawn sky bands
+  for(let y=0;y<Math.floor(H*0.55);y++){
+    const k = 18+Math.floor(14*Math.sin((y+t*0.002)));
+    px.fillStyle = `rgb(${6+k},${18+k},${36+k})`; px.fillRect(0,y,W,1);
+  }
+
+  // Tree line silhouette
+  for(let x=0;x<W;x++){
+    const h = 6 + Math.floor(3*Math.sin(x*0.2));
+    px.fillStyle='#0e2a1c'; px.fillRect(x, Math.floor(H*0.48)-h, 1, h);
+  }
+
+  // Wetland water body
+  PAT.fillRectDither(px, 0, Math.floor(H*0.55), W, H-Math.floor(H*0.55), '#0b213a', 0.8, 2);
+
+  // Reeds clusters (tiles)
+  for(let i=0;i<70;i++){
+    const x = (i*7 + (t*0.05|0))%W;
+    const y = Math.floor(H*0.58 + 8*Math.sin((i*0.7)+(t*0.004)));
+    px.fillStyle='#1f4b2e'; px.fillRect(x, y, 2, 3);
+    px.fillRect(x+3, y+1, 2, 2);
+  }
+
+  // Birds (flapping)
+  if(!BRA.birds || BRA.birds.length===0){
+    BRA.birds = Array.from({length:5}, (_,i)=> ({ x: 20 + i*40, y: 18 + (i%2)*6, vx: 0.25 + 0.05*i, ph: Math.randomom()*6.28 }));
+  }
+  BRA.birds.forEach(b=>{
+    b.x += b.vx; if(b.x>W+10) b.x=-10;
+    const yy = 18 + Math.sin(t*0.003 + b.ph)*3;
+    const flap = (t>>6)%2;
+    px.fillStyle='#cfe2ff';
+    // simple 2-frame wing flap
+    px.fillRect(b.x|0, yy|0, 4,1);
+    if(flap){ px.fillRect((b.x|0)-1, (yy|0)+1, 2,1); px.fillRect((b.x|0)+4, (yy|0)+1, 2,1); }
+  });
+
+  // Distant Iguaçu spray (particles)
+  const sx = W-12, sy = Math.floor(H*0.50);
+  for(let i=0;i<20;i++){
+    const yy = sy + ((i*2 + (t>>3))%20);
+    px.fillStyle='rgba(200,220,255,0.35)'; px.fillRect(sx + (i%2), yy, 2,1);
+  }
+
+  // Water shimmer bands
+  for(let i=0;i<120;i++){
+    const x=(i*5 + (t>>2))%W, y= Math.floor(H*0.60 + (i%12));
+    px.fillStyle='rgba(180,220,255,0.10)'; px.fillRect(x, y, 3,1);
+  }
+
+  // Boardwalk posts
+  const bx = Math.floor(W*0.18), by = Math.floor(H*0.62);
+  px.fillStyle='#5a4428'; px.fillRect(bx-2, by-12, 4, 18); px.fillRect(bx+34, by-10, 4, 16);
+  px.fillStyle='#6b5130'; px.fillRect(bx, by-6, 40, 4);
+
+  // Blit
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+
+
+  // distant tree line
+  for(let i=0;i<W;i++){ const h = 6 + Math.floor(3*Math.sin((i*0.2))); px.fillStyle='#0e2a1c'; px.fillRect(i, Math.floor(H*0.45)-h, 1, h); }
+
+  // marsh water
+  px.fillStyle='#0b213a'; px.fillRect(0, Math.floor(H*0.55), W, Math.floor(H*0.45));
+  // wetland patches
+  for(let i=0;i<140;i++){ const x=(i*13)%W, y=Math.floor(H*0.60 + 10*Math.sin((i+BRA.t*0.002))); px.fillStyle='#1f4b2e'; px.fillRect(x, y, 3,1); }
+
+  // boardwalk
+  const bx = Math.floor(W*0.18), by = Math.floor(H*0.62);
+  px.fillStyle='#5a4428'; px.fillRect(bx-2, by-12, 4, 18); px.fillRect(bx+34, by-10, 4, 16);
+  px.fillStyle='#6b5130'; px.fillRect(bx, by-6, 40, 4);
+
+  // flying birds
+  BRA.birds.forEach(b=>{ b.x += b.vx; if(b.x>W+10) b.x=-10; const yy=18+Math.sin((BRA.t*0.003)+b.x*0.2)*2; px.fillStyle='#cfe2ff'; px.fillRect(Math.floor(b.x), Math.floor(yy), 2,1); px.fillRect(Math.floor(b.x)+2, Math.floor(yy), 2,1); });
+
+  // fish ripples
+  BRA.fish.forEach(f=>{ f.x += f.vx; if(f.x>W) f.x=0; const yy = Math.floor(H*0.58) + Math.floor(Math.sin((BRA.t*0.004)+f.x*0.1)*2); px.fillStyle='rgba(180,220,255,0.15)'; px.fillRect(Math.floor(f.x), yy, 6,1); });
+
+  // far-off falls spray (right edge)
+  const sx = W-12, sy = Math.floor(H*0.50); BRA.spray = (BRA.spray+1)%6;
+  for(let i=0;i<12;i++){ const a = (i%6===BRA.spray)? 0.35 : 0.15; px.fillStyle=`rgba(200,220,255,${a})`; px.fillRect(sx, sy+i, 2,1); }
+
+  // upscale
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+function setupBrazilHotspots(){
+  const hub = HUBS.brazil;
+  const c = document.getElementById('sceneCanvas'); const tip = document.getElementById('sceneTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearestHotspot(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of hub.hotspots){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    BRA.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(BRA.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    if(hotspot && dist <= hotspot.r){ goLocation(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ BRA.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+function initColombiaScene(){
+  COL.clouds = Array.from({length:5}, (_,i)=> ({ x: 30 + i*40, y: 16 + (i%2)*6, w: 18 + (i%3)*6, h: 8 + (i%2)*4, vx: 0.15 + 0.03*i }));
+  COL.boat = { x: 10, dir: 1 };
+  COL.rain = 0;
+}
+function startColombiaAnim(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  if(COL.animId) cancelAnimationFrame(COL.animId);
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    COL.t += dt;
+    drawColombiaFrame();
+    COL.animId = requestAnimationFrame(loop);
+  };
+  COL.animId = requestAnimationFrame(loop);
+}
+function stopColombiaAnim(){ if(COL.animId){ cancelAnimationFrame(COL.animId); COL.animId=null; } }
+
+function drawColombiaFrame(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas'); oc.width = COL.base.w; oc.height = COL.base.h;
+  const px = oc.getContext('2d'); [px,ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+
+  const W = oc.width, H=oc.height, t = COL.t;
+
+  // Sky gradient + clouds
+  for(let y=0;y<Math.floor(H*0.55);y++){
+    const k = 18+Math.floor(16*Math.sin((y+t*0.002)));
+    px.fillStyle = `rgb(${6+k},${18+k},${34+k})`; px.fillRect(0,y,W,1);
+  }
+  if(!COL.clouds || COL.clouds.length===0){
+    COL.clouds = Array.from({length:5}, (_,i)=> ({ x: 30 + i*40, y: 14 + (i%2)*6, w: 18 + (i%3)*6, h: 8 + (i%2)*4, vx: 0.12 + 0.03*i }));
+  }
+  COL.clouds.forEach(cl=>{
+    cl.x += cl.vx; if(cl.x - cl.w > W) cl.x = -cl.w;
+    for(let i=0;i<cl.h;i++){ const w = cl.w - Math.floor(i/2); px.fillStyle='#bcd2f5'; px.fillRect(Math.floor(cl.x), cl.y+i, w, 1); }
+  });
+
+  // Andean slopes layered
+  const baseY = Math.floor(H*0.62);
+  PAT.fillRectDither(px, 0, baseY-26, W, 14, '#16365c', 0.6, 3);
+  PAT.fillRectDither(px, 0, baseY-14, W, 10, '#1b4270', 0.6, 2);
+
+  // Coffee terraces (richer rows)
+  const rx = Math.floor(W*0.64);
+  for(let r=0;r<7;r++){ const yy = baseY-6 - r*3; px.fillStyle=['#295c3a','#2e6a41'][r%2]; px.fillRect(rx-12, yy, 34, 2); px.fillStyle='#223f2a'; px.fillRect(rx-12, yy+2, 34, 1); }
+
+  // River + flow shimmer
+  px.fillStyle='#0b1f3a'; px.fillRect(0, baseY, W, H-baseY);
+  for(let i=0;i<120;i++){ const x=(i*6 + (t>>2))%W, y= baseY + ((i*3 + (t>>3))%(H-baseY)); px.fillStyle='rgba(180,220,255,0.12)'; px.fillRect(x, y, 3,1); }
+
+  // Steamboat with smoke puffs
+  if(!COL.boat) COL.boat = { x: 10, dir: 1 };
+  COL.boat.x += 0.2 * COL.boat.dir; if(COL.boat.x > W-10) COL.boat.dir = -1; if(COL.boat.x < 6) COL.boat.dir = 1;
+  const bx = Math.floor(COL.boat.x), by = baseY + 12;
+  px.fillStyle='#3a587a'; px.fillRect(bx-6, by-3, 12,2);
+  px.fillStyle='#4a6a8d'; px.fillRect(bx-2, by-6, 4,4);
+  if((t>>5)%2===0){ px.fillStyle='#c0d6f8'; px.fillRect(bx, by-8, 3,2); }
+
+  // Blit
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+
+
+  // clouds
+  COL.clouds.forEach(cl=>{
+    cl.x += cl.vx; if(cl.x - cl.w > W) cl.x = -cl.w;
+    for(let i=0;i<cl.h;i++){ const w = cl.w - Math.floor(i/2); px.fillStyle='#bcd2f5'; px.fillRect(Math.floor(cl.x), cl.y+i, w, 1); }
+  });
+
+  // Andean slopes
+  const baseY = Math.floor(H*0.62);
+  for(let x=0;x<W; x++){
+    const hL = 18 + Math.floor(10*Math.sin(x*0.05));
+    const hR = 14 + Math.floor(8*Math.sin((x+40)*0.06));
+    px.fillStyle='#143259'; px.fillRect(x, baseY - hL, 1, hL);
+    px.fillStyle='#183c66'; px.fillRect(x, baseY - hR - 4, 1, hR);
+  }
+
+  // river and shimmer
+  px.fillStyle='#0c2240'; px.fillRect(0, baseY, W, Math.floor(H - baseY));
+  for(let i=0;i<90;i++){ const x=(i*7)%W, y= baseY + ((i*3 + Math.floor(COL.t*0.02))%Math.floor(H-baseY)); px.fillStyle='rgba(180,220,255,0.12)'; px.fillRect(x, y, 3,1); }
+
+  // coffee terraces
+  const rx = Math.floor(W*0.62), ry = baseY-18;
+  for(let r=0;r<5;r++){ const yy = ry - r*3; px.fillStyle='#295c3a'; px.fillRect(rx-8, yy, 28, 2); }
+
+  // little steamboat
+  COL.boat.x += 0.2 * COL.boat.dir; if(COL.boat.x > W-10) COL.boat.dir = -1; if(COL.boat.x < 6) COL.boat.dir = 1;
+  const bx = Math.floor(COL.boat.x), by = baseY + 10;
+  px.fillStyle='#c0d6f8'; px.fillRect(bx-2, by-6, 4,2);
+  px.fillStyle='#3a587a'; px.fillRect(bx-6, by-3, 12,2);
+  px.fillStyle='#4a6a8d'; px.fillRect(bx-2, by-6, 4,4);
+
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+function setupColombiaHotspots(){
+  const hub = HUBS.colombia;
+  const c = document.getElementById('sceneCanvas'); const tip = document.getElementById('sceneTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearestHotspot(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of hub.hotspots){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    COL.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(COL.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    if(hotspot && dist <= hotspot.r){ goLocation(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ COL.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+function initPeruScene(){
+  PER.condor = { x: 10, y: 18, dir: 1 };
+  PER.clouds = Array.from({length:4}, (_,i)=> ({ x: 20 + i*50, y: 12 + (i%2)*6, w: 18 + i*2, h: 8 + (i%2)*3, vx: 0.12 + 0.02*i }));
+  PER.terr = Array.from({length:6}, (_,r)=> ({ y: Math.floor(PER.base.h*0.58) - r*3, w: 34 + r*3 }));
+  PER.shimmer = 0;
+}
+function startPeruAnim(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  if(PER.animId) cancelAnimationFrame(PER.animId);
+  let last = 0;
+  const loop = (ts)=>{
+    const dt = Math.min(32, ts - last); last = ts;
+    PER.t += dt;
+    drawPeruFrame();
+    PER.animId = requestAnimationFrame(loop);
+  };
+  PER.animId = requestAnimationFrame(loop);
+}
+function stopPeruAnim(){ if(PER.animId){ cancelAnimationFrame(PER.animId); PER.animId=null; } }
+
+function drawPeruFrame(){
+  const c = document.getElementById('sceneCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const oc = document.createElement('canvas'); oc.width = PER.base.w; oc.height = PER.base.h;
+  const px = oc.getContext('2d'); [px,ctx].forEach(k=>{ if(!k) return; k.imageSmoothingEnabled=false; });
+
+  const W = oc.width, H=oc.height, t = PER.t;
+
+  // Sky bands + cloud bands
+  for(let y=0;y<Math.floor(H*0.55);y++){
+    const k = 16+Math.floor(18*Math.sin((y+t*0.002)));
+    px.fillStyle = `rgb(${6+k},${18+k},${34+k})`; px.fillRect(0,y,W,1);
+  }
+  if(!PER.clouds || PER.clouds.length===0){
+    PER.clouds = Array.from({length:4}, (_,i)=> ({ x: 20 + i*50, y: 12 + (i%2)*6, w: 18 + i*2, h: 8 + (i%2)*3, vx: 0.10 + 0.02*i }));
+  }
+  PER.clouds.forEach(cl=>{
+    cl.x += cl.vx; if(cl.x - cl.w > W) cl.x = -cl.w;
+    for(let i=0;i<cl.h;i++){ const w = cl.w - Math.floor(i/2); px.fillStyle='#bcd2f5'; px.fillRect(Math.floor(cl.x), cl.y+i, w, 1); }
+  });
+
+  // Layered Andes ridges with dithering
+  const baseY = Math.floor(H*0.64);
+  PAT.fillRectDither(px, 0, baseY-28, W, 12, '#17365e', 0.6, 3);
+  PAT.fillRectDither(px, 0, baseY-16, W, 10, '#1c4472', 0.6, 2);
+
+  // Terraces (more + shading)
+  const rx = Math.floor(W*0.62);
+  for(let r=0;r<8;r++){
+    const yy = baseY-6 - r*3; const w = 40 + r*2;
+    px.fillStyle='#2a5b3a'; px.fillRect(rx-12, yy, w, 2);
+    px.fillStyle='#1e4230'; px.fillRect(rx-12, yy+2, w, 1);
+  }
+
+  // Urubamba river shimmer
+  for(let i=0;i<120;i++){ const x=(i*6 + (t>>2))%W, y= baseY + ((i*2 + (t>>2))%(H-baseY)); px.fillStyle='rgba(180,220,255,0.12)'; px.fillRect(x, y, 3,1); }
+
+  // Condor sprite (wing flap)
+  if(!PER.condor) PER.condor = { x: 10, y: 18, dir: 1 };
+  PER.condor.x += 0.25*PER.condor.dir; if(PER.condor.x>W-10) PER.condor.dir=-1; if(PER.condor.x<6) PER.condor.dir=1;
+  const cx = Math.floor(PER.condor.x), cy = 18 + Math.floor(Math.sin(t*0.003)*2);
+  const flap = (t>>6)%2;
+  px.fillStyle='#cfe2ff';
+  px.fillRect(cx-3, cy, 8,1);
+  if(flap){ px.fillRect(cx-4, cy+1, 3,1); px.fillRect(cx+5, cy+1, 3,1); }
+
+  // Blit
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+
+  });
+
+  // mountains
+  const baseY = Math.floor(H*0.64);
+  for(let x=0;x<W;x++){
+    const h = 20 + Math.floor(10*Math.sin(x*0.06));
+    px.fillStyle='#1a3b63'; px.fillRect(x, baseY - h, 1, h);
+    const h2 = 10 + Math.floor(6*Math.sin((x+20)*0.07));
+    px.fillStyle='#153352'; px.fillRect(x, baseY - h2 - 6, 1, h2);
+  }
+
+  // terraces block (right)
+  const rx = Math.floor(W*0.62);
+  PER.terr.forEach((t, i)=>{
+    const yy = t.y - i;
+    px.fillStyle='#2a5b3a'; px.fillRect(rx-10, yy, t.w, 2);
+  });
+
+  // river glint (Urubamba)
+  PER.shimmer = (PER.shimmer+1)%8;
+  for(let i=0;i<90;i++){ const x=(i*7)%W, y= baseY + ((i*3 + Math.floor(PER.t*0.02))%Math.floor(H-baseY)); const a = (i%8===PER.shimmer)? 0.28 : 0.12; px.fillStyle=`rgba(180,220,255,${a})`; px.fillRect(x, y, 3,1); }
+
+  // condor
+  PER.condor.x += 0.25*PER.condor.dir; if(PER.condor.x>W-10) PER.condor.dir=-1; if(PER.condor.x<6) PER.condor.dir=1;
+  const cx = Math.floor(PER.condor.x), cy = 18 + Math.floor(Math.sin(PER.t*0.003)*2);
+  px.fillStyle='#cfe2ff'; px.fillRect(cx-2, cy, 6,1);
+  px.fillRect(cx, cy-1, 2,1);
+
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(oc, 0,0, W,H, 0,0, c.width, c.height);
+  applyScenePostFX();
+}
+function setupPeruHotspots(){
+  const hub = HUBS.peru;
+  const c = document.getElementById('sceneCanvas'); const tip = document.getElementById('sceneTip');
+  if(!c) return;
+  const rectFor = ()=> c.getBoundingClientRect();
+  function nearestHotspot(ev){
+    const rect = rectFor();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
+    let best=null, bestD=1e9;
+    for(const h of hub.hotspots){
+      const d = Math.hypot(x - h.x, y - h.y);
+      if(d < bestD){ bestD=d; best=h; }
+    }
+    return {hotspot:best, dist:bestD, x, y};
+  }
+  function onMove(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    PER.hoverId = (hotspot && dist <= hotspot.r) ? hotspot.id : null;
+    if(PER.hoverId){
+      c.style.cursor = 'pointer';
+      tip.style.display='block'; tip.textContent = hotspot.label;
+      tip.style.left = (ev.clientX)+'px'; tip.style.top = (ev.clientY)+'px';
+    }else{
+      c.style.cursor = 'crosshair'; tip.style.display='none';
+    }
+  }
+  function onClick(ev){
+    const {hotspot, dist} = nearestHotspot(ev);
+    if(hotspot && dist <= hotspot.r){ goLocation(hotspot.id); }
+  }
+  c.addEventListener('mousemove', onMove);
+  c.addEventListener('mouseleave', ()=>{ PER.hoverId=null; c.style.cursor='crosshair'; tip.style.display='none'; });
+  c.addEventListener('click', onClick);
+}
+
+// ======= PIXEL ART TOOLKIT =======
+const PAT = {
+  cache:{},
+  _mkPattern(col, alpha, patt){
+    const key = col+'|'+alpha+'|'+patt;
+    if(this.cache[key]) return this.cache[key];
+    const c = document.createElement('canvas'); c.width=4; c.height=4;
+    const x = c.getContext('2d'); x.imageSmoothingEnabled=false;
+    x.clearRect(0,0,4,4);
+    x.fillStyle = this._rgba(col, alpha);
+    const maps = {
+      0:[[0,0]],
+      1:[[0,0],[2,2]],                       // 25%
+      2:[[0,0],[2,0],[0,2],[2,2]],          // 50% checker
+      3:[[0,0],[1,2],[2,1],[3,3]],          // 50% stagger
+      4:[[0,0],[2,0],[1,1],[3,1],[0,2],[2,2],[1,3],[3,3]], // 75%
+    };
+    (maps[patt]||maps[2]).forEach(([i,j])=> x.fillRect(i,j,1,1));
+    const p = x.createPattern(c,'repeat'); this.cache[key]=p; return p;
+  },
+  _rgba(hex, a){
+    const h = hex.replace('#','');
+    const r = parseInt(h.slice(0,2),16);
+    const g = parseInt(h.slice(2,4),16);
+    const b = parseInt(h.slice(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  },
+  fillRectDither(ctx, x,y,w,h, col, alpha=0.6, patt=2){
+    ctx.save();
+    ctx.fillStyle = this._mkPattern(col, alpha, patt);
+    ctx.translate(Math.floor(x), Math.floor(y));
+    ctx.fillRect(0,0,Math.floor(w),Math.floor(h));
+    ctx.restore();
+  },
+  slope(ctx, x1,y1, x2,y2, h, col){ // simple sloped ridge fill
+    ctx.fillStyle = col;
+    const minx = Math.min(x1,x2), maxx=Math.max(x1,x2);
+    for(let x=minx; x<=maxx; x++){
+      const t = (x - x1)/(x2 - x1 || 1);
+      const y = Math.round(y1 + t*(y2 - y1));
+      ctx.fillRect(x, y, 1, Math.max(1, Math.round(h*(1-t))));
+    }
+  },
+  tri(ctx, ax,ay,bx,by,cx,cy, col){
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(cx,cy); ctx.closePath(); ctx.fill();
+  },
+  circle(ctx, x,y,r, col){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); },
+  rect(ctx, x,y,w,h, col){ ctx.fillStyle=col; ctx.fillRect(Math.floor(x),Math.floor(y),Math.floor(w),Math.floor(h)); },
+  horizShimmer(ctx, y0, w, reps, amp, col, alpha){
+    ctx.fillStyle=this._rgba(col, alpha);
+    for(let i=0;i<reps;i++){
+      const x = (i*7)%w;
+      ctx.fillRect(x, y0 + (i%5), 4, 1);
+    }
+  }
+};
+
+// helper to stop any running country anim
+function stopAllCountryAnims(){ stopArgentinaAnim(); stopChileAnim(); stopBrazilAnim(); stopColombiaAnim(); stopPeruAnim(); }
+
+// ======= FINAL =======
+function renderFinal(){
+  stopAllCountryAnims(); stopAirfieldAnim();
+  viewTitle.textContent = 'Sanctuary (Locked Until 5 Shards)';
+  view.innerHTML = `
+    <div class="card">
+      <h2>🛫 Flight Plan — Condor Sanctuary</h2>
+      <p>Collect all five Feather Shards: <b>Argentina</b>, <b>Chile</b>, Colombia, Brazil, Peru. Then return to the Airfield to fly to the sanctuary.</p>
+      <div class="btn-row"><button onclick="renderAirfield()">Back to Airfield</button></div>
+    </div>`;
+}
+
+
+// ======= LOSE =======
+function renderLose(){
+  stopAllCountryAnims(); stopAirfieldAnim();
+  viewTitle.textContent = 'Rivals Won';
+  view.innerHTML = `
+    <div class="card">
+      <h2>⏳ Too Slow!</h2>
+      <p>Your rivals reached the City of the Condor first.</p>
+      <div class="btn-row">
+        <button onclick="resetGame()">Try Again</button>
+      </div>
+    </div>`;
+}
+function checkLose(){ if(state.rival >= state.rivalMax){ state.view.mode='lose'; renderLose(); } }
+
+function applyScenePostFX(){
+  // Toggle scanlines visibility based on state.retroFX
+  const s = document.getElementById('scanlines');
+  if(s){ s.style.display = (state.retroFX!==false) ? 'block' : 'none'; }
+}
+// ======= SAVE/LOAD =======
+function saveGame(){ localStorage.setItem('condorAirfieldBuild', JSON.stringify(state)); logLine('💾 Saved.'); }
+function loadGame(){ const s = localStorage.getItem('condorAirfieldBuild'); if(!s){ logLine('No save found.'); return; } Object.assign(state, JSON.parse(s)); /* deferred init */
+logLine('📂 Loaded.'); }
+function resetGame(){ if(!confirm('Reset progress?')) return; state.xp=0;state.feathers=0;state.featherCountries={};state.rival=0;state.tu=0;state.journal=[];state.log=[];state.evidence={argentina:[],chile:[]};state.evidenceDetails=[];state.answers={};state.view={mode:'airfield',country:null,location:null}; stopAllCountryAnims(); stopAirfieldAnim(); /* deferred init */
+}
+
+// ======= VIEW ROUTER =======
+function render(){
+  if(state.view.mode==='airfield') renderAirfield();
+  else if(state.view.mode==='hub') renderCountryHub();
+  else if(state.view.mode==='location') renderLocation();
+  else if(state.view.mode==='synthesis') renderSynthesis();
+  else if(state.view.mode==='final') renderFinal();
+  else if(state.view.mode==='lose') renderLose();
+}
+
+// ======= MODAL helpers =======
+function showModal(){ modal.style.display='flex'; }
+function closeModal(){ modal.style.display='none'; modalTitle.textContent=''; modalContent.innerHTML=''; }
+
+// ======= INIT =======
+/* deferred init */
+function openHost(){
+  const hub = HUBS[state.country];
+  if(!hub || !hub.host){ alert('No host available.'); return; }
+  const src = { kind:'dialogue', title: `Talk to ${hub.host.who} (host)`, who: hub.host.who, nodes: hub.host.nodes };
+  renderDialogue(src);
+}
+
+</script>
+
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  try{
+    render(); renderHud();
+  }catch(e){
+    console.error('Init error:', e);
+  }
+});
+</script>
+
+</body>
+</html>
