@@ -2699,15 +2699,17 @@ function openHost(){
 
 </script>
 
+...
+<!-- Your existing scripts here -->
+
 <script>
-window.addEventListener('DOMContentLoaded', function(){
-  try{
-    render(); renderHud();
-  }catch(e){
-    console.error('Init error:', e);
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof render === 'function') {
+    render();
+  } else if (typeof renderAirfield === 'function') {
+    renderAirfield();
   }
 });
 </script>
-
 </body>
 </html>
